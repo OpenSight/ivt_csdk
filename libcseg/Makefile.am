@@ -6,7 +6,11 @@ AM_CPPFLAGS = -I$(srcdir)
 pkgconfigdir = $(libdir)/pkgconfig
 pkgconfig_DATA = $(srcdir)/libcseg.pc
 
-SUBDIRS = . samples
+SUBDIRS = . 
+
+if INCLUDE_LIBCSEG_SAMPLES
+SUBDIRS += samples
+endif
 
 lib_LTLIBRARIES=libcseg.la
 

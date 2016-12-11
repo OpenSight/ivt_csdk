@@ -28,7 +28,7 @@
 #include <unistd.h>
 #include <pthread.h>
 
-#include "config.h"
+#include "libcseg_config.h"
 
 #include "libcseg.h"
 

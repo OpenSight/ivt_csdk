@@ -32,7 +32,7 @@
 #include <stdio.h>
 
 
-#include "config.h"    
+#include "libcseg_config.h"    
 #include "min_cached_segment.h"
 #include <sys/time.h>
 

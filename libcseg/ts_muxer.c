@@ -3,7 +3,7 @@
 #include <stdlib.h>
 //#include <libavutil/log.h>
 
-#include "config.h"
+#include "libcseg_config.h"
 
 #include "ts_muxer.h"
 #include "libcseg.h"

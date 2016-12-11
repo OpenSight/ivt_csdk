@@ -8,7 +8,7 @@
 #include <stddef.h>
 #include <stdint.h>
 
-#include "config.h"
+#include "libcseg_config.h"
 #include "libcseg.h"
 
 #ifdef __cplusplus
