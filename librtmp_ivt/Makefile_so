@@ -1,0 +1,77 @@
+#
+#  "$Id: Makefile 1899 2008-10-11 08:56:06Z chen_min $"
+#
+#  Copyright (c)1992-2007, ZheJiang Dahua Technology Stock CO.LTD.
+#  All Rights Reserved.
+#
+#	Description:	
+#	Revisions:		Year-Month-Day  SVN-Author  Modification
+#
+
+ifndef CONFIG_MAKE_DIR
+	CONFIG_MAKE_DIR	:= $(shell /bin/pwd)
+endif
+
+CONFIG_MAKE_FILE := $(CONFIG_MAKE_DIR)/config.make
+
+include $(CONFIG_MAKE_FILE)
+
+ifndef PLATTYPE
+$(error please define PLATTYPE in config.make)
+endif
+
+ifndef CONFIG_MAKE_DIR
+$(error please define CONFIG_MAKE_DIR in config.make)
+endif
+
+ifndef TOP_DIR
+$(error please define TOP_DIR in config.make)
+endif
+
+PLATFORMDIR=$(TOP_DIR)/Lib/$(PLATTYPE)
+include $(PLATFORMDIR)/cpu
+
+LIBDIR = $(TOP_DIR)/Lib/$(PLATTYPE)
+BINDIR = $(TOP_DIR)/Bin/$(PLATTYPE)
+
+LIB_NAME = libRtmpServer
+
+LIB_TARGET = $(LIBDIR)/$(LIB_NAME).so	
+ifeq ($(debug), 1)
+LIB_TARGET = $(LIBDIR)/$(LIB_NAME)D.so
+endif
+
+CFLAGS	+= -I $(TOP_DIR)/Include
+
+CFLAGS +=-D__linux__ -DLINUX -D_DEBUG
+
+CFLAGS+=-DPLATTYPE=$(PLATTYPE)
+
+
+LIB_OBJS =	src/rtmpsrv.o src/sendFlv.o src/main.o src/rtmp.o src/parseurl.o \
+src/thread.o src/amf.o src/log.o src/publishLive.o 
+		
+
+CFLAGS +=-D__linux__ -DLINUX -DCMS_MODULE
+
+
+
+TARGET	= $(LIB_TARGET)
+CFLAGS+=-D__linux__
+
+all: $(TARGET)
+
+$(LIB_TARGET): $(LIB_OBJS)
+	@mkdir -p $(dir $@)
+	$(RM) $@;
+	$(CPP) -shared -o $@ $(LIB_OBJS)
+
+.c.o:
+	$(CC) -fpic -c $(CFLAGS) $^ -o $@
+
+.cpp.o:
+	$(CPP) -fpic -c $(CFLAGS) $^ -o $@
+
+clean:
+	$(RM) $(TARGET) $(LIB_OBJS) ;
+
