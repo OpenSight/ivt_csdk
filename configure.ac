@@ -5,20 +5,22 @@ AC_PREREQ([2.63])
 AC_INIT([ivt_csdk], [0.1.0], [public@opensight.cn])
 
 AC_CONFIG_AUX_DIR([config])
-AC_CONFIG_MACRO_DIR([m4])
 
 
 AM_INIT_AUTOMAKE([tar-ustar])
 AM_MAINTAINER_MODE
 AM_SILENT_RULES
 
-LT_PREREQ([2.2])
-LT_INIT()
-AC_PROG_LIBTOOL
-
 AC_CONFIG_SRCDIR([libcseg/libcseg.h])
 AC_CONFIG_HEADERS([config.h])
 
+
+AC_ARG_WITH([ffmpeg-samples],
+[AS_HELP_STRING([--with-ffmpeg-samples], 
+[would build the samples based on ffmpeg library @<:@default=no@:>@])], 
+[ffmpeg_samples=${withval}], [ffmpeg_samples=no]) 
+
+AM_CONDITIONAL([INCLUDE_FFMPEG_SAMPLES], [test "x$ffmpeg_samples" = xyes])
 
 AC_ARG_WITH([libcseg], 
 [AS_HELP_STRING([--with-libcseg], 
@@ -28,12 +30,16 @@ AC_ARG_WITH([libcseg],
 AM_CONDITIONAL([INCLUDE_LIBCSEG], [test "x$libcseg_library" = xyes])
 
 
-AC_ARG_WITH([libcseg-samples],
-[AS_HELP_STRING([--with-libcseg-samples], 
-[would build the samples of libcseg library @<:@default=no@:>@])], 
-[libcseg_samples=${withval}], [libcseg_samples=no]) 
+AC_ARG_WITH([libivtutil], 
+[AS_HELP_STRING([--with-libivtutil], 
+[would build the libivtutil library @<:@default=yes@:>@])], 
+[libivtutil_library=${withval}], [libivtutil_library=yes]) 
+if test "x$libcseg_library" = xyes; then
+    libivtutil_library=yes
+fi
+AM_CONDITIONAL([INCLUDE_LIBIVTUTIL], [test "x$libivtutil_library" = xyes])
 
-AM_CONDITIONAL([INCLUDE_LIBCSEG_SAMPLES], [test "x$libcseg_samples" = xyes])
+
 
 # Checks for programs.
 AC_PROG_CXX
@@ -43,7 +49,7 @@ AC_PROG_CPP
 AC_PROG_INSTALL
 AC_PROG_LN_S
 AC_PROG_MAKE_SET
-# AC_PROG_RANLIB
+AC_PROG_RANLIB
 
 # Set some default features required by ffmpeg_ivr code.
 CPPFLAGS="-D_REENTRANT -D_THREAD_SAFE $CPPFLAGS"
@@ -61,7 +67,7 @@ export PKG_CONFIG_PATH=/usr/lib/pkgconfig:/usr/lib64/pkgconfig:/lib/pkgconfig:/l
 
 # PKG checks
 
-if test "x$libcseg_samples" = xyes; then
+if test "x$ffmpeg_samples" = xyes; then
   PKG_CHECK_MODULES(libavformat, [libavformat >= 56.40.100])
   PKG_CHECK_MODULES(libavutil, [libavutil >= 54.31.0])  
   PKG_CHECK_MODULES(libavcodec, [libavcodec >= 56.60.100])  
@@ -109,6 +115,8 @@ AC_FUNC_MALLOC
 AC_CHECK_FUNCS([clock_gettime floor gethostbyname gettimeofday memset pow select socket strcasecmp strchr strerror strncasecmp strrchr strstr])
 
 AC_CONFIG_FILES([Makefile \
+                 libivtutil/Makefile \
+                 libivtutil/samples/Makefile \
                  libcseg/Makefile \
                  libcseg/samples/Makefile \
                  libcseg/libcseg.pc])
@@ -119,8 +127,9 @@ AC_MSG_NOTICE([
 
 Configure successfully!
 
+libivtutil included.................. : $libivtutil_library
 libcseg included..................... : $libcseg_library
-libcseg-sampels included ............ : $libcseg_samples
+ffmpeg-sampels included ............. : $ffmpeg_samples
 
 
 

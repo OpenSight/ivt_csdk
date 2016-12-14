@@ -31,8 +31,8 @@
 #include <time.h>
     
 #include "../min_cached_segment.h"
-#include "../utils/cJSON.h"
-#include "../utils/http_client/HTTPClient.h"
+#include "cJSON.h"
+#include "HTTPClient.h"
 
 
 #define   MSEC_PER_SEC   1000

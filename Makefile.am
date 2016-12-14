@@ -1,10 +1,12 @@
 AUTOMAKE_OPTIONS=foreign
-ACLOCAL_AMFLAGS = -I m4
 
 EXTRA_DIST = License README.md 
 
-
 SUBDIRS = 
+
+if INCLUDE_LIBIVTUTIL
+SUBDIRS += libivtutil
+endif
 
 if INCLUDE_LIBCSEG
 SUBDIRS += libcseg

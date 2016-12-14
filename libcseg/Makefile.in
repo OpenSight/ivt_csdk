@@ -34,17 +34,11 @@ POST_INSTALL = :
 NORMAL_UNINSTALL = :
 PRE_UNINSTALL = :
 POST_UNINSTALL = :
-build_triplet = @build@
-host_triplet = @host@
-@INCLUDE_LIBCSEG_SAMPLES_TRUE@am__append_1 = samples
 subdir = libcseg
 DIST_COMMON = $(include_HEADERS) $(srcdir)/Makefile.am \
 	$(srcdir)/Makefile.in $(srcdir)/libcseg.pc.in
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
-am__aclocal_m4_deps = $(top_srcdir)/m4/libtool.m4 \
-	$(top_srcdir)/m4/ltoptions.m4 $(top_srcdir)/m4/ltsugar.m4 \
-	$(top_srcdir)/m4/ltversion.m4 $(top_srcdir)/m4/lt~obsolete.m4 \
-	$(top_srcdir)/configure.ac
+am__aclocal_m4_deps = $(top_srcdir)/configure.ac
 am__configure_deps = $(am__aclocal_m4_deps) $(CONFIGURE_DEPENDENCIES) \
 	$(ACLOCAL_M4)
 mkinstalldirs = $(install_sh) -d
@@ -74,51 +68,46 @@ am__base_list = \
   sed '$$!N;$$!N;$$!N;$$!N;s/\n/ /g'
 am__installdirs = "$(DESTDIR)$(libdir)" "$(DESTDIR)$(pkgconfigdir)" \
 	"$(DESTDIR)$(includedir)"
-LTLIBRARIES = $(lib_LTLIBRARIES)
-libcseg_la_LIBADD =
+LIBRARIES = $(lib_LIBRARIES)
+AR = ar
+ARFLAGS = cru
+AM_V_AR = $(am__v_AR_$(V))
+am__v_AR_ = $(am__v_AR_$(AM_DEFAULT_VERBOSITY))
+am__v_AR_0 = @echo "  AR    " $@;
+AM_V_at = $(am__v_at_$(V))
+am__v_at_ = $(am__v_at_$(AM_DEFAULT_VERBOSITY))
+am__v_at_0 = @
+libcseg_a_AR = $(AR) $(ARFLAGS)
+libcseg_a_LIBADD =
 am__dirstamp = $(am__leading_dot)dirstamp
-am_libcseg_la_OBJECTS = min_cached_segment.lo ts_muxer.lo vf_intf.lo \
-	utils/cJSON.lo utils/http_client/HTTPClient.lo \
-	utils/http_client/HTTPClientAuth.lo \
-	utils/http_client/HTTPClientString.lo \
-	utils/http_client/HTTPClientWrapper.lo \
-	seg_writers/cseg_dummy_writer.lo \
-	seg_writers/cseg_file_writer.lo seg_writers/cseg_ivr_writer.lo
-libcseg_la_OBJECTS = $(am_libcseg_la_OBJECTS)
-AM_V_lt = $(am__v_lt_$(V))
-am__v_lt_ = $(am__v_lt_$(AM_DEFAULT_VERBOSITY))
-am__v_lt_0 = --silent
-libcseg_la_LINK = $(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) \
-	$(LIBTOOLFLAGS) --mode=link $(CCLD) $(AM_CFLAGS) $(CFLAGS) \
-	$(libcseg_la_LDFLAGS) $(LDFLAGS) -o $@
+am_libcseg_a_OBJECTS = libcseg_a-min_cached_segment.$(OBJEXT) \
+	libcseg_a-ts_muxer.$(OBJEXT) libcseg_a-vf_intf.$(OBJEXT) \
+	seg_writers/libcseg_a-cseg_dummy_writer.$(OBJEXT) \
+	seg_writers/libcseg_a-cseg_file_writer.$(OBJEXT) \
+	seg_writers/libcseg_a-cseg_ivr_writer.$(OBJEXT)
+libcseg_a_OBJECTS = $(am_libcseg_a_OBJECTS)
 DEFAULT_INCLUDES = -I.@am__isrc@ -I$(top_builddir)
 depcomp = $(SHELL) $(top_srcdir)/config/depcomp
 am__depfiles_maybe = depfiles
 am__mv = mv -f
+AM_V_lt = $(am__v_lt_$(V))
+am__v_lt_ = $(am__v_lt_$(AM_DEFAULT_VERBOSITY))
+am__v_lt_0 = --silent
 COMPILE = $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) \
 	$(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS)
-LTCOMPILE = $(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) \
-	$(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) \
-	$(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) \
-	$(AM_CFLAGS) $(CFLAGS)
 AM_V_CC = $(am__v_CC_$(V))
 am__v_CC_ = $(am__v_CC_$(AM_DEFAULT_VERBOSITY))
 am__v_CC_0 = @echo "  CC    " $@;
-AM_V_at = $(am__v_at_$(V))
-am__v_at_ = $(am__v_at_$(AM_DEFAULT_VERBOSITY))
-am__v_at_0 = @
 CCLD = $(CC)
-LINK = $(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) \
-	$(LIBTOOLFLAGS) --mode=link $(CCLD) $(AM_CFLAGS) $(CFLAGS) \
-	$(AM_LDFLAGS) $(LDFLAGS) -o $@
+LINK = $(CCLD) $(AM_CFLAGS) $(CFLAGS) $(AM_LDFLAGS) $(LDFLAGS) -o $@
 AM_V_CCLD = $(am__v_CCLD_$(V))
 am__v_CCLD_ = $(am__v_CCLD_$(AM_DEFAULT_VERBOSITY))
 am__v_CCLD_0 = @echo "  CCLD  " $@;
 AM_V_GEN = $(am__v_GEN_$(V))
 am__v_GEN_ = $(am__v_GEN_$(AM_DEFAULT_VERBOSITY))
 am__v_GEN_0 = @echo "  GEN   " $@;
-SOURCES = $(libcseg_la_SOURCES)
-DIST_SOURCES = $(libcseg_la_SOURCES)
+SOURCES = $(libcseg_a_SOURCES)
+DIST_SOURCES = $(libcseg_a_SOURCES)
 RECURSIVE_TARGETS = all-recursive check-recursive dvi-recursive \
 	html-recursive info-recursive install-data-recursive \
 	install-dvi-recursive install-exec-recursive \
@@ -135,7 +124,7 @@ AM_RECURSIVE_TARGETS = $(RECURSIVE_TARGETS:-recursive=) \
 	distdir
 ETAGS = etags
 CTAGS = ctags
-DIST_SUBDIRS = . samples
+DIST_SUBDIRS = $(SUBDIRS)
 DISTFILES = $(DIST_COMMON) $(DIST_SOURCES) $(TEXINFOS) $(EXTRA_DIST)
 am__relativize = \
   dir0=`pwd`; \
@@ -165,7 +154,6 @@ am__relativize = \
 ACLOCAL = @ACLOCAL@
 AMTAR = @AMTAR@
 AM_DEFAULT_VERBOSITY = @AM_DEFAULT_VERBOSITY@
-AR = @AR@
 AUTOCONF = @AUTOCONF@
 AUTOHEADER = @AUTOHEADER@
 AUTOMAKE = @AUTOMAKE@
@@ -176,43 +164,31 @@ CFLAGS = @CFLAGS@
 CPP = @CPP@
 CPPFLAGS = @CPPFLAGS@
 CXX = @CXX@
-CXXCPP = @CXXCPP@
 CXXDEPMODE = @CXXDEPMODE@
 CXXFLAGS = @CXXFLAGS@
 CYGPATH_W = @CYGPATH_W@
 DEFS = @DEFS@
 DEPDIR = @DEPDIR@
-DSYMUTIL = @DSYMUTIL@
-DUMPBIN = @DUMPBIN@
 ECHO_C = @ECHO_C@
 ECHO_N = @ECHO_N@
 ECHO_T = @ECHO_T@
 EGREP = @EGREP@
 EXEEXT = @EXEEXT@
-FGREP = @FGREP@
 GREP = @GREP@
 INSTALL = @INSTALL@
 INSTALL_DATA = @INSTALL_DATA@
 INSTALL_PROGRAM = @INSTALL_PROGRAM@
 INSTALL_SCRIPT = @INSTALL_SCRIPT@
 INSTALL_STRIP_PROGRAM = @INSTALL_STRIP_PROGRAM@
-LD = @LD@
 LDFLAGS = @LDFLAGS@
 LIBOBJS = @LIBOBJS@
 LIBS = @LIBS@
-LIBTOOL = @LIBTOOL@
-LIPO = @LIPO@
 LN_S = @LN_S@
 LTLIBOBJS = @LTLIBOBJS@
 MAINT = @MAINT@
 MAKEINFO = @MAKEINFO@
 MKDIR_P = @MKDIR_P@
-NM = @NM@
-NMEDIT = @NMEDIT@
-OBJDUMP = @OBJDUMP@
 OBJEXT = @OBJEXT@
-OTOOL = @OTOOL@
-OTOOL64 = @OTOOL64@
 PACKAGE = @PACKAGE@
 PACKAGE_BUGREPORT = @PACKAGE_BUGREPORT@
 PACKAGE_NAME = @PACKAGE_NAME@
@@ -222,7 +198,6 @@ PACKAGE_VERSION = @PACKAGE_VERSION@
 PATH_SEPARATOR = @PATH_SEPARATOR@
 PKG_CONFIG = @PKG_CONFIG@
 RANLIB = @RANLIB@
-SED = @SED@
 SET_MAKE = @SET_MAKE@
 SHELL = @SHELL@
 STRIP = @STRIP@
@@ -233,29 +208,20 @@ abs_top_builddir = @abs_top_builddir@
 abs_top_srcdir = @abs_top_srcdir@
 ac_ct_CC = @ac_ct_CC@
 ac_ct_CXX = @ac_ct_CXX@
-ac_ct_DUMPBIN = @ac_ct_DUMPBIN@
 am__include = @am__include@
 am__leading_dot = @am__leading_dot@
 am__quote = @am__quote@
 am__tar = @am__tar@
 am__untar = @am__untar@
 bindir = @bindir@
-build = @build@
 build_alias = @build_alias@
-build_cpu = @build_cpu@
-build_os = @build_os@
-build_vendor = @build_vendor@
 builddir = @builddir@
 datadir = @datadir@
 datarootdir = @datarootdir@
 docdir = @docdir@
 dvidir = @dvidir@
 exec_prefix = @exec_prefix@
-host = @host@
 host_alias = @host_alias@
-host_cpu = @host_cpu@
-host_os = @host_os@
-host_vendor = @host_vendor@
 htmldir = @htmldir@
 includedir = @includedir@
 infodir = @infodir@
@@ -278,7 +244,6 @@ libswscale_CFLAGS = @libswscale_CFLAGS@
 libswscale_LIBS = @libswscale_LIBS@
 localedir = @localedir@
 localstatedir = @localstatedir@
-lt_ECHO = @lt_ECHO@
 mandir = @mandir@
 mkdir_p = @mkdir_p@
 oldincludedir = @oldincludedir@
@@ -298,9 +263,9 @@ AUTOMAKE_OPTIONS = foreign subdir-objects
 AM_CPPFLAGS = -I$(srcdir)
 pkgconfigdir = $(libdir)/pkgconfig
 pkgconfig_DATA = $(srcdir)/libcseg.pc
-SUBDIRS = . $(am__append_1)
-lib_LTLIBRARIES = libcseg.la
-libcseg_la_SOURCES = config.h \
+SUBDIRS = . samples
+lib_LIBRARIES = libcseg.a
+libcseg_a_SOURCES = config.h \
     min_cached_segment.c \
     min_cached_segment.h \
     libcseg.h \
@@ -308,27 +273,16 @@ libcseg_la_SOURCES = config.h \
     ts_muxer.h \
     vf_intf.c \
     vf_intf.h \
-    utils/cJSON.c \
-    utils/cJSON.h \
-    utils/http_client/HTTPClient.c \
-    utils/http_client/HTTPClient.h  \
-    utils/http_client/HTTPClientAuth.c \
-    utils/http_client/HTTPClientAuth.h \
-    utils/http_client/HTTPClientCommon.h \
-    utils/http_client/HTTPClientString.h \
-    utils/http_client/HTTPClientString.c \
-    utils/http_client/HTTPClientWrapper.h \
-    utils/http_client/HTTPClientWrapper.c \
     seg_writers/cseg_dummy_writer.c \
     seg_writers/cseg_file_writer.c  \
     seg_writers/cseg_ivr_writer.c
 
-libcseg_la_LDFLAGS = -version-info 0:0:0 $(AM_LDFLAGS)   
+libcseg_a_CPPFLAGS = -I$(srcdir)/../libivtutil/http_client -I$(srcdir)/../libivtutil/cjson
 include_HEADERS = $(srcdir)/libcseg.h $(srcdir)/vf_intf.h
 all: all-recursive
 
 .SUFFIXES:
-.SUFFIXES: .c .lo .o .obj
+.SUFFIXES: .c .o .obj
 $(srcdir)/Makefile.in: @MAINTAINER_MODE_TRUE@ $(srcdir)/Makefile.am  $(am__configure_deps)
 	@for dep in $?; do \
 	  case '$(am__configure_deps)' in \
@@ -361,109 +315,73 @@ $(ACLOCAL_M4): @MAINTAINER_MODE_TRUE@ $(am__aclocal_m4_deps)
 $(am__aclocal_m4_deps):
 libcseg.pc: $(top_builddir)/config.status $(srcdir)/libcseg.pc.in
 	cd $(top_builddir) && $(SHELL) ./config.status $(subdir)/$@
-install-libLTLIBRARIES: $(lib_LTLIBRARIES)
+install-libLIBRARIES: $(lib_LIBRARIES)
 	@$(NORMAL_INSTALL)
 	test -z "$(libdir)" || $(MKDIR_P) "$(DESTDIR)$(libdir)"
-	@list='$(lib_LTLIBRARIES)'; test -n "$(libdir)" || list=; \
+	@list='$(lib_LIBRARIES)'; test -n "$(libdir)" || list=; \
 	list2=; for p in $$list; do \
 	  if test -f $$p; then \
 	    list2="$$list2 $$p"; \
 	  else :; fi; \
 	done; \
 	test -z "$$list2" || { \
-	  echo " $(LIBTOOL) $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=install $(INSTALL) $(INSTALL_STRIP_FLAG) $$list2 '$(DESTDIR)$(libdir)'"; \
-	  $(LIBTOOL) $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=install $(INSTALL) $(INSTALL_STRIP_FLAG) $$list2 "$(DESTDIR)$(libdir)"; \
-	}
-
-uninstall-libLTLIBRARIES:
-	@$(NORMAL_UNINSTALL)
-	@list='$(lib_LTLIBRARIES)'; test -n "$(libdir)" || list=; \
+	  echo " $(INSTALL_DATA) $$list2 '$(DESTDIR)$(libdir)'"; \
+	  $(INSTALL_DATA) $$list2 "$(DESTDIR)$(libdir)" || exit $$?; }
+	@$(POST_INSTALL)
+	@list='$(lib_LIBRARIES)'; test -n "$(libdir)" || list=; \
 	for p in $$list; do \
-	  $(am__strip_dir) \
-	  echo " $(LIBTOOL) $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=uninstall rm -f '$(DESTDIR)$(libdir)/$$f'"; \
-	  $(LIBTOOL) $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=uninstall rm -f "$(DESTDIR)$(libdir)/$$f"; \
+	  if test -f $$p; then \
+	    $(am__strip_dir) \
+	    echo " ( cd '$(DESTDIR)$(libdir)' && $(RANLIB) $$f )"; \
+	    ( cd "$(DESTDIR)$(libdir)" && $(RANLIB) $$f ) || exit $$?; \
+	  else :; fi; \
 	done
 
-clean-libLTLIBRARIES:
-	-test -z "$(lib_LTLIBRARIES)" || rm -f $(lib_LTLIBRARIES)
-	@list='$(lib_LTLIBRARIES)'; for p in $$list; do \
-	  dir="`echo $$p | sed -e 's|/[^/]*$$||'`"; \
-	  test "$$dir" != "$$p" || dir=.; \
-	  echo "rm -f \"$${dir}/so_locations\""; \
-	  rm -f "$${dir}/so_locations"; \
-	done
-utils/$(am__dirstamp):
-	@$(MKDIR_P) utils
-	@: > utils/$(am__dirstamp)
-utils/$(DEPDIR)/$(am__dirstamp):
-	@$(MKDIR_P) utils/$(DEPDIR)
-	@: > utils/$(DEPDIR)/$(am__dirstamp)
-utils/cJSON.lo: utils/$(am__dirstamp) utils/$(DEPDIR)/$(am__dirstamp)
-utils/http_client/$(am__dirstamp):
-	@$(MKDIR_P) utils/http_client
-	@: > utils/http_client/$(am__dirstamp)
-utils/http_client/$(DEPDIR)/$(am__dirstamp):
-	@$(MKDIR_P) utils/http_client/$(DEPDIR)
-	@: > utils/http_client/$(DEPDIR)/$(am__dirstamp)
-utils/http_client/HTTPClient.lo: utils/http_client/$(am__dirstamp) \
-	utils/http_client/$(DEPDIR)/$(am__dirstamp)
-utils/http_client/HTTPClientAuth.lo:  \
-	utils/http_client/$(am__dirstamp) \
-	utils/http_client/$(DEPDIR)/$(am__dirstamp)
-utils/http_client/HTTPClientString.lo:  \
-	utils/http_client/$(am__dirstamp) \
-	utils/http_client/$(DEPDIR)/$(am__dirstamp)
-utils/http_client/HTTPClientWrapper.lo:  \
-	utils/http_client/$(am__dirstamp) \
-	utils/http_client/$(DEPDIR)/$(am__dirstamp)
+uninstall-libLIBRARIES:
+	@$(NORMAL_UNINSTALL)
+	@list='$(lib_LIBRARIES)'; test -n "$(libdir)" || list=; \
+	files=`for p in $$list; do echo $$p; done | sed -e 's|^.*/||'`; \
+	test -n "$$files" || exit 0; \
+	echo " ( cd '$(DESTDIR)$(libdir)' && rm -f "$$files" )"; \
+	cd "$(DESTDIR)$(libdir)" && rm -f $$files
+
+clean-libLIBRARIES:
+	-test -z "$(lib_LIBRARIES)" || rm -f $(lib_LIBRARIES)
 seg_writers/$(am__dirstamp):
 	@$(MKDIR_P) seg_writers
 	@: > seg_writers/$(am__dirstamp)
 seg_writers/$(DEPDIR)/$(am__dirstamp):
 	@$(MKDIR_P) seg_writers/$(DEPDIR)
 	@: > seg_writers/$(DEPDIR)/$(am__dirstamp)
-seg_writers/cseg_dummy_writer.lo: seg_writers/$(am__dirstamp) \
+seg_writers/libcseg_a-cseg_dummy_writer.$(OBJEXT):  \
+	seg_writers/$(am__dirstamp) \
 	seg_writers/$(DEPDIR)/$(am__dirstamp)
-seg_writers/cseg_file_writer.lo: seg_writers/$(am__dirstamp) \
+seg_writers/libcseg_a-cseg_file_writer.$(OBJEXT):  \
+	seg_writers/$(am__dirstamp) \
 	seg_writers/$(DEPDIR)/$(am__dirstamp)
-seg_writers/cseg_ivr_writer.lo: seg_writers/$(am__dirstamp) \
+seg_writers/libcseg_a-cseg_ivr_writer.$(OBJEXT):  \
+	seg_writers/$(am__dirstamp) \
 	seg_writers/$(DEPDIR)/$(am__dirstamp)
-libcseg.la: $(libcseg_la_OBJECTS) $(libcseg_la_DEPENDENCIES) 
-	$(AM_V_CCLD)$(libcseg_la_LINK) -rpath $(libdir) $(libcseg_la_OBJECTS) $(libcseg_la_LIBADD) $(LIBS)
+libcseg.a: $(libcseg_a_OBJECTS) $(libcseg_a_DEPENDENCIES) 
+	$(AM_V_at)-rm -f libcseg.a
+	$(AM_V_AR)$(libcseg_a_AR) libcseg.a $(libcseg_a_OBJECTS) $(libcseg_a_LIBADD)
+	$(AM_V_at)$(RANLIB) libcseg.a
 
 mostlyclean-compile:
 	-rm -f *.$(OBJEXT)
-	-rm -f seg_writers/cseg_dummy_writer.$(OBJEXT)
-	-rm -f seg_writers/cseg_dummy_writer.lo
-	-rm -f seg_writers/cseg_file_writer.$(OBJEXT)
-	-rm -f seg_writers/cseg_file_writer.lo
-	-rm -f seg_writers/cseg_ivr_writer.$(OBJEXT)
-	-rm -f seg_writers/cseg_ivr_writer.lo
-	-rm -f utils/cJSON.$(OBJEXT)
-	-rm -f utils/cJSON.lo
-	-rm -f utils/http_client/HTTPClient.$(OBJEXT)
-	-rm -f utils/http_client/HTTPClient.lo
-	-rm -f utils/http_client/HTTPClientAuth.$(OBJEXT)
-	-rm -f utils/http_client/HTTPClientAuth.lo
-	-rm -f utils/http_client/HTTPClientString.$(OBJEXT)
-	-rm -f utils/http_client/HTTPClientString.lo
-	-rm -f utils/http_client/HTTPClientWrapper.$(OBJEXT)
-	-rm -f utils/http_client/HTTPClientWrapper.lo
+	-rm -f seg_writers/libcseg_a-cseg_dummy_writer.$(OBJEXT)
+	-rm -f seg_writers/libcseg_a-cseg_file_writer.$(OBJEXT)
+	-rm -f seg_writers/libcseg_a-cseg_ivr_writer.$(OBJEXT)
 
 distclean-compile:
 	-rm -f *.tab.c
 
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/min_cached_segment.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/ts_muxer.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/vf_intf.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@seg_writers/$(DEPDIR)/cseg_dummy_writer.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@seg_writers/$(DEPDIR)/cseg_file_writer.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@seg_writers/$(DEPDIR)/cseg_ivr_writer.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@utils/$(DEPDIR)/cJSON.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@utils/http_client/$(DEPDIR)/HTTPClient.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@utils/http_client/$(DEPDIR)/HTTPClientAuth.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@utils/http_client/$(DEPDIR)/HTTPClientString.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@utils/http_client/$(DEPDIR)/HTTPClientWrapper.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libcseg_a-min_cached_segment.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libcseg_a-ts_muxer.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libcseg_a-vf_intf.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@seg_writers/$(DEPDIR)/libcseg_a-cseg_dummy_writer.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@seg_writers/$(DEPDIR)/libcseg_a-cseg_file_writer.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@seg_writers/$(DEPDIR)/libcseg_a-cseg_ivr_writer.Po@am__quote@
 
 .c.o:
 @am__fastdepCC_TRUE@	$(AM_V_CC)depbase=`echo $@ | sed 's|[^/]*$$|$(DEPDIR)/&|;s|\.o$$||'`;\
@@ -483,23 +401,101 @@ distclean-compile:
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(COMPILE) -c -o $@ `$(CYGPATH_W) '$<'`
 
-.c.lo:
-@am__fastdepCC_TRUE@	$(AM_V_CC)depbase=`echo $@ | sed 's|[^/]*$$|$(DEPDIR)/&|;s|\.lo$$||'`;\
-@am__fastdepCC_TRUE@	$(LTCOMPILE) -MT $@ -MD -MP -MF $$depbase.Tpo -c -o $@ $< &&\
-@am__fastdepCC_TRUE@	$(am__mv) $$depbase.Tpo $$depbase.Plo
+libcseg_a-min_cached_segment.o: min_cached_segment.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libcseg_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT libcseg_a-min_cached_segment.o -MD -MP -MF $(DEPDIR)/libcseg_a-min_cached_segment.Tpo -c -o libcseg_a-min_cached_segment.o `test -f 'min_cached_segment.c' || echo '$(srcdir)/'`min_cached_segment.c
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libcseg_a-min_cached_segment.Tpo $(DEPDIR)/libcseg_a-min_cached_segment.Po
 @am__fastdepCC_FALSE@	$(AM_V_CC) @AM_BACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='$<' object='$@' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='min_cached_segment.c' object='libcseg_a-min_cached_segment.o' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(LTCOMPILE) -c -o $@ $<
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libcseg_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o libcseg_a-min_cached_segment.o `test -f 'min_cached_segment.c' || echo '$(srcdir)/'`min_cached_segment.c
 
-mostlyclean-libtool:
-	-rm -f *.lo
+libcseg_a-min_cached_segment.obj: min_cached_segment.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libcseg_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT libcseg_a-min_cached_segment.obj -MD -MP -MF $(DEPDIR)/libcseg_a-min_cached_segment.Tpo -c -o libcseg_a-min_cached_segment.obj `if test -f 'min_cached_segment.c'; then $(CYGPATH_W) 'min_cached_segment.c'; else $(CYGPATH_W) '$(srcdir)/min_cached_segment.c'; fi`
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libcseg_a-min_cached_segment.Tpo $(DEPDIR)/libcseg_a-min_cached_segment.Po
+@am__fastdepCC_FALSE@	$(AM_V_CC) @AM_BACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='min_cached_segment.c' object='libcseg_a-min_cached_segment.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libcseg_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o libcseg_a-min_cached_segment.obj `if test -f 'min_cached_segment.c'; then $(CYGPATH_W) 'min_cached_segment.c'; else $(CYGPATH_W) '$(srcdir)/min_cached_segment.c'; fi`
 
-clean-libtool:
-	-rm -rf .libs _libs
-	-rm -rf seg_writers/.libs seg_writers/_libs
-	-rm -rf utils/.libs utils/_libs
-	-rm -rf utils/http_client/.libs utils/http_client/_libs
+libcseg_a-ts_muxer.o: ts_muxer.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libcseg_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT libcseg_a-ts_muxer.o -MD -MP -MF $(DEPDIR)/libcseg_a-ts_muxer.Tpo -c -o libcseg_a-ts_muxer.o `test -f 'ts_muxer.c' || echo '$(srcdir)/'`ts_muxer.c
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libcseg_a-ts_muxer.Tpo $(DEPDIR)/libcseg_a-ts_muxer.Po
+@am__fastdepCC_FALSE@	$(AM_V_CC) @AM_BACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='ts_muxer.c' object='libcseg_a-ts_muxer.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libcseg_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o libcseg_a-ts_muxer.o `test -f 'ts_muxer.c' || echo '$(srcdir)/'`ts_muxer.c
+
+libcseg_a-ts_muxer.obj: ts_muxer.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libcseg_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT libcseg_a-ts_muxer.obj -MD -MP -MF $(DEPDIR)/libcseg_a-ts_muxer.Tpo -c -o libcseg_a-ts_muxer.obj `if test -f 'ts_muxer.c'; then $(CYGPATH_W) 'ts_muxer.c'; else $(CYGPATH_W) '$(srcdir)/ts_muxer.c'; fi`
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libcseg_a-ts_muxer.Tpo $(DEPDIR)/libcseg_a-ts_muxer.Po
+@am__fastdepCC_FALSE@	$(AM_V_CC) @AM_BACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='ts_muxer.c' object='libcseg_a-ts_muxer.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libcseg_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o libcseg_a-ts_muxer.obj `if test -f 'ts_muxer.c'; then $(CYGPATH_W) 'ts_muxer.c'; else $(CYGPATH_W) '$(srcdir)/ts_muxer.c'; fi`
+
+libcseg_a-vf_intf.o: vf_intf.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libcseg_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT libcseg_a-vf_intf.o -MD -MP -MF $(DEPDIR)/libcseg_a-vf_intf.Tpo -c -o libcseg_a-vf_intf.o `test -f 'vf_intf.c' || echo '$(srcdir)/'`vf_intf.c
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libcseg_a-vf_intf.Tpo $(DEPDIR)/libcseg_a-vf_intf.Po
+@am__fastdepCC_FALSE@	$(AM_V_CC) @AM_BACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='vf_intf.c' object='libcseg_a-vf_intf.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libcseg_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o libcseg_a-vf_intf.o `test -f 'vf_intf.c' || echo '$(srcdir)/'`vf_intf.c
+
+libcseg_a-vf_intf.obj: vf_intf.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libcseg_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT libcseg_a-vf_intf.obj -MD -MP -MF $(DEPDIR)/libcseg_a-vf_intf.Tpo -c -o libcseg_a-vf_intf.obj `if test -f 'vf_intf.c'; then $(CYGPATH_W) 'vf_intf.c'; else $(CYGPATH_W) '$(srcdir)/vf_intf.c'; fi`
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libcseg_a-vf_intf.Tpo $(DEPDIR)/libcseg_a-vf_intf.Po
+@am__fastdepCC_FALSE@	$(AM_V_CC) @AM_BACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='vf_intf.c' object='libcseg_a-vf_intf.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libcseg_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o libcseg_a-vf_intf.obj `if test -f 'vf_intf.c'; then $(CYGPATH_W) 'vf_intf.c'; else $(CYGPATH_W) '$(srcdir)/vf_intf.c'; fi`
+
+seg_writers/libcseg_a-cseg_dummy_writer.o: seg_writers/cseg_dummy_writer.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libcseg_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT seg_writers/libcseg_a-cseg_dummy_writer.o -MD -MP -MF seg_writers/$(DEPDIR)/libcseg_a-cseg_dummy_writer.Tpo -c -o seg_writers/libcseg_a-cseg_dummy_writer.o `test -f 'seg_writers/cseg_dummy_writer.c' || echo '$(srcdir)/'`seg_writers/cseg_dummy_writer.c
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) seg_writers/$(DEPDIR)/libcseg_a-cseg_dummy_writer.Tpo seg_writers/$(DEPDIR)/libcseg_a-cseg_dummy_writer.Po
+@am__fastdepCC_FALSE@	$(AM_V_CC) @AM_BACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='seg_writers/cseg_dummy_writer.c' object='seg_writers/libcseg_a-cseg_dummy_writer.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libcseg_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o seg_writers/libcseg_a-cseg_dummy_writer.o `test -f 'seg_writers/cseg_dummy_writer.c' || echo '$(srcdir)/'`seg_writers/cseg_dummy_writer.c
+
+seg_writers/libcseg_a-cseg_dummy_writer.obj: seg_writers/cseg_dummy_writer.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libcseg_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT seg_writers/libcseg_a-cseg_dummy_writer.obj -MD -MP -MF seg_writers/$(DEPDIR)/libcseg_a-cseg_dummy_writer.Tpo -c -o seg_writers/libcseg_a-cseg_dummy_writer.obj `if test -f 'seg_writers/cseg_dummy_writer.c'; then $(CYGPATH_W) 'seg_writers/cseg_dummy_writer.c'; else $(CYGPATH_W) '$(srcdir)/seg_writers/cseg_dummy_writer.c'; fi`
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) seg_writers/$(DEPDIR)/libcseg_a-cseg_dummy_writer.Tpo seg_writers/$(DEPDIR)/libcseg_a-cseg_dummy_writer.Po
+@am__fastdepCC_FALSE@	$(AM_V_CC) @AM_BACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='seg_writers/cseg_dummy_writer.c' object='seg_writers/libcseg_a-cseg_dummy_writer.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libcseg_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o seg_writers/libcseg_a-cseg_dummy_writer.obj `if test -f 'seg_writers/cseg_dummy_writer.c'; then $(CYGPATH_W) 'seg_writers/cseg_dummy_writer.c'; else $(CYGPATH_W) '$(srcdir)/seg_writers/cseg_dummy_writer.c'; fi`
+
+seg_writers/libcseg_a-cseg_file_writer.o: seg_writers/cseg_file_writer.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libcseg_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT seg_writers/libcseg_a-cseg_file_writer.o -MD -MP -MF seg_writers/$(DEPDIR)/libcseg_a-cseg_file_writer.Tpo -c -o seg_writers/libcseg_a-cseg_file_writer.o `test -f 'seg_writers/cseg_file_writer.c' || echo '$(srcdir)/'`seg_writers/cseg_file_writer.c
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) seg_writers/$(DEPDIR)/libcseg_a-cseg_file_writer.Tpo seg_writers/$(DEPDIR)/libcseg_a-cseg_file_writer.Po
+@am__fastdepCC_FALSE@	$(AM_V_CC) @AM_BACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='seg_writers/cseg_file_writer.c' object='seg_writers/libcseg_a-cseg_file_writer.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libcseg_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o seg_writers/libcseg_a-cseg_file_writer.o `test -f 'seg_writers/cseg_file_writer.c' || echo '$(srcdir)/'`seg_writers/cseg_file_writer.c
+
+seg_writers/libcseg_a-cseg_file_writer.obj: seg_writers/cseg_file_writer.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libcseg_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT seg_writers/libcseg_a-cseg_file_writer.obj -MD -MP -MF seg_writers/$(DEPDIR)/libcseg_a-cseg_file_writer.Tpo -c -o seg_writers/libcseg_a-cseg_file_writer.obj `if test -f 'seg_writers/cseg_file_writer.c'; then $(CYGPATH_W) 'seg_writers/cseg_file_writer.c'; else $(CYGPATH_W) '$(srcdir)/seg_writers/cseg_file_writer.c'; fi`
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) seg_writers/$(DEPDIR)/libcseg_a-cseg_file_writer.Tpo seg_writers/$(DEPDIR)/libcseg_a-cseg_file_writer.Po
+@am__fastdepCC_FALSE@	$(AM_V_CC) @AM_BACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='seg_writers/cseg_file_writer.c' object='seg_writers/libcseg_a-cseg_file_writer.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libcseg_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o seg_writers/libcseg_a-cseg_file_writer.obj `if test -f 'seg_writers/cseg_file_writer.c'; then $(CYGPATH_W) 'seg_writers/cseg_file_writer.c'; else $(CYGPATH_W) '$(srcdir)/seg_writers/cseg_file_writer.c'; fi`
+
+seg_writers/libcseg_a-cseg_ivr_writer.o: seg_writers/cseg_ivr_writer.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libcseg_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT seg_writers/libcseg_a-cseg_ivr_writer.o -MD -MP -MF seg_writers/$(DEPDIR)/libcseg_a-cseg_ivr_writer.Tpo -c -o seg_writers/libcseg_a-cseg_ivr_writer.o `test -f 'seg_writers/cseg_ivr_writer.c' || echo '$(srcdir)/'`seg_writers/cseg_ivr_writer.c
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) seg_writers/$(DEPDIR)/libcseg_a-cseg_ivr_writer.Tpo seg_writers/$(DEPDIR)/libcseg_a-cseg_ivr_writer.Po
+@am__fastdepCC_FALSE@	$(AM_V_CC) @AM_BACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='seg_writers/cseg_ivr_writer.c' object='seg_writers/libcseg_a-cseg_ivr_writer.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libcseg_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o seg_writers/libcseg_a-cseg_ivr_writer.o `test -f 'seg_writers/cseg_ivr_writer.c' || echo '$(srcdir)/'`seg_writers/cseg_ivr_writer.c
+
+seg_writers/libcseg_a-cseg_ivr_writer.obj: seg_writers/cseg_ivr_writer.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libcseg_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT seg_writers/libcseg_a-cseg_ivr_writer.obj -MD -MP -MF seg_writers/$(DEPDIR)/libcseg_a-cseg_ivr_writer.Tpo -c -o seg_writers/libcseg_a-cseg_ivr_writer.obj `if test -f 'seg_writers/cseg_ivr_writer.c'; then $(CYGPATH_W) 'seg_writers/cseg_ivr_writer.c'; else $(CYGPATH_W) '$(srcdir)/seg_writers/cseg_ivr_writer.c'; fi`
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) seg_writers/$(DEPDIR)/libcseg_a-cseg_ivr_writer.Tpo seg_writers/$(DEPDIR)/libcseg_a-cseg_ivr_writer.Po
+@am__fastdepCC_FALSE@	$(AM_V_CC) @AM_BACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='seg_writers/cseg_ivr_writer.c' object='seg_writers/libcseg_a-cseg_ivr_writer.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libcseg_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o seg_writers/libcseg_a-cseg_ivr_writer.obj `if test -f 'seg_writers/cseg_ivr_writer.c'; then $(CYGPATH_W) 'seg_writers/cseg_ivr_writer.c'; else $(CYGPATH_W) '$(srcdir)/seg_writers/cseg_ivr_writer.c'; fi`
 install-pkgconfigDATA: $(pkgconfig_DATA)
 	@$(NORMAL_INSTALL)
 	test -z "$(pkgconfigdir)" || $(MKDIR_P) "$(DESTDIR)$(pkgconfigdir)"
@@ -736,7 +732,7 @@ distdir: $(DISTFILES)
 	done
 check-am: all-am
 check: check-recursive
-all-am: Makefile $(LTLIBRARIES) $(DATA) $(HEADERS)
+all-am: Makefile $(LIBRARIES) $(DATA) $(HEADERS)
 installdirs: installdirs-recursive
 installdirs-am:
 	for dir in "$(DESTDIR)$(libdir)" "$(DESTDIR)$(pkgconfigdir)" "$(DESTDIR)$(includedir)"; do \
@@ -765,21 +761,16 @@ distclean-generic:
 	-test . = "$(srcdir)" || test -z "$(CONFIG_CLEAN_VPATH_FILES)" || rm -f $(CONFIG_CLEAN_VPATH_FILES)
 	-rm -f seg_writers/$(DEPDIR)/$(am__dirstamp)
 	-rm -f seg_writers/$(am__dirstamp)
-	-rm -f utils/$(DEPDIR)/$(am__dirstamp)
-	-rm -f utils/$(am__dirstamp)
-	-rm -f utils/http_client/$(DEPDIR)/$(am__dirstamp)
-	-rm -f utils/http_client/$(am__dirstamp)
 
 maintainer-clean-generic:
 	@echo "This command is intended for maintainers to use"
 	@echo "it deletes files that may require special tools to rebuild."
 clean: clean-recursive
 
-clean-am: clean-generic clean-libLTLIBRARIES clean-libtool \
-	mostlyclean-am
+clean-am: clean-generic clean-libLIBRARIES mostlyclean-am
 
 distclean: distclean-recursive
-	-rm -rf ./$(DEPDIR) seg_writers/$(DEPDIR) utils/$(DEPDIR) utils/http_client/$(DEPDIR)
+	-rm -rf ./$(DEPDIR) seg_writers/$(DEPDIR)
 	-rm -f Makefile
 distclean-am: clean-am distclean-compile distclean-generic \
 	distclean-tags
@@ -802,7 +793,7 @@ install-dvi: install-dvi-recursive
 
 install-dvi-am:
 
-install-exec-am: install-libLTLIBRARIES
+install-exec-am: install-libLIBRARIES
 
 install-html: install-html-recursive
 
@@ -825,14 +816,13 @@ install-ps-am:
 installcheck-am:
 
 maintainer-clean: maintainer-clean-recursive
-	-rm -rf ./$(DEPDIR) seg_writers/$(DEPDIR) utils/$(DEPDIR) utils/http_client/$(DEPDIR)
+	-rm -rf ./$(DEPDIR) seg_writers/$(DEPDIR)
 	-rm -f Makefile
 maintainer-clean-am: distclean-am maintainer-clean-generic
 
 mostlyclean: mostlyclean-recursive
 
-mostlyclean-am: mostlyclean-compile mostlyclean-generic \
-	mostlyclean-libtool
+mostlyclean-am: mostlyclean-compile mostlyclean-generic
 
 pdf: pdf-recursive
 
@@ -842,7 +832,7 @@ ps: ps-recursive
 
 ps-am:
 
-uninstall-am: uninstall-includeHEADERS uninstall-libLTLIBRARIES \
+uninstall-am: uninstall-includeHEADERS uninstall-libLIBRARIES \
 	uninstall-pkgconfigDATA
 
 .MAKE: $(RECURSIVE_CLEAN_TARGETS) $(RECURSIVE_TARGETS) ctags-recursive \
@@ -850,20 +840,19 @@ uninstall-am: uninstall-includeHEADERS uninstall-libLTLIBRARIES \
 
 .PHONY: $(RECURSIVE_CLEAN_TARGETS) $(RECURSIVE_TARGETS) CTAGS GTAGS \
 	all all-am check check-am clean clean-generic \
-	clean-libLTLIBRARIES clean-libtool ctags ctags-recursive \
-	distclean distclean-compile distclean-generic \
-	distclean-libtool distclean-tags distdir dvi dvi-am html \
-	html-am info info-am install install-am install-data \
-	install-data-am install-dvi install-dvi-am install-exec \
-	install-exec-am install-html install-html-am \
+	clean-libLIBRARIES ctags ctags-recursive distclean \
+	distclean-compile distclean-generic distclean-tags distdir dvi \
+	dvi-am html html-am info info-am install install-am \
+	install-data install-data-am install-dvi install-dvi-am \
+	install-exec install-exec-am install-html install-html-am \
 	install-includeHEADERS install-info install-info-am \
-	install-libLTLIBRARIES install-man install-pdf install-pdf-am \
+	install-libLIBRARIES install-man install-pdf install-pdf-am \
 	install-pkgconfigDATA install-ps install-ps-am install-strip \
 	installcheck installcheck-am installdirs installdirs-am \
 	maintainer-clean maintainer-clean-generic mostlyclean \
-	mostlyclean-compile mostlyclean-generic mostlyclean-libtool \
-	pdf pdf-am ps ps-am tags tags-recursive uninstall uninstall-am \
-	uninstall-includeHEADERS uninstall-libLTLIBRARIES \
+	mostlyclean-compile mostlyclean-generic pdf pdf-am ps ps-am \
+	tags tags-recursive uninstall uninstall-am \
+	uninstall-includeHEADERS uninstall-libLIBRARIES \
 	uninstall-pkgconfigDATA
 
 

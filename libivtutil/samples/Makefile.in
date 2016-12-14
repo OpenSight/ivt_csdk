@@ -32,9 +32,9 @@ POST_INSTALL = :
 NORMAL_UNINSTALL = :
 PRE_UNINSTALL = :
 POST_UNINSTALL = :
-noinst_PROGRAMS = $(am__EXEEXT_1)
-@INCLUDE_FFMPEG_SAMPLES_TRUE@am__append_1 = ffmpeg_test 
-subdir = libcseg/samples
+noinst_PROGRAMS = HTTPClientSample$(EXEEXT) \
+	HTTPClientSampleKeepalive$(EXEEXT)
+subdir = libivtutil/samples
 DIST_COMMON = $(srcdir)/Makefile.am $(srcdir)/Makefile.in
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
 am__aclocal_m4_deps = $(top_srcdir)/configure.ac
@@ -44,19 +44,16 @@ mkinstalldirs = $(install_sh) -d
 CONFIG_HEADER = $(top_builddir)/config.h
 CONFIG_CLEAN_FILES =
 CONFIG_CLEAN_VPATH_FILES =
-@INCLUDE_FFMPEG_SAMPLES_TRUE@am__EXEEXT_1 = ffmpeg_test$(EXEEXT)
 PROGRAMS = $(noinst_PROGRAMS)
-am__ffmpeg_test_SOURCES_DIST = ffmpeg_test.c auxiliary/get_bits.h \
-	auxiliary/mpeg4audio.h auxiliary/mpeg4audio.c
-am__dirstamp = $(am__leading_dot)dirstamp
-@INCLUDE_FFMPEG_SAMPLES_TRUE@am_ffmpeg_test_OBJECTS = ffmpeg_test-ffmpeg_test.$(OBJEXT) \
-@INCLUDE_FFMPEG_SAMPLES_TRUE@	auxiliary/ffmpeg_test-mpeg4audio.$(OBJEXT)
-ffmpeg_test_OBJECTS = $(am_ffmpeg_test_OBJECTS)
-@INCLUDE_FFMPEG_SAMPLES_TRUE@ffmpeg_test_DEPENDENCIES =  \
-@INCLUDE_FFMPEG_SAMPLES_TRUE@	$(builddir)/../libcseg.a \
-@INCLUDE_FFMPEG_SAMPLES_TRUE@	$(builddir)/../../libivtutil/libivtutil.a
-ffmpeg_test_LINK = $(CCLD) $(ffmpeg_test_CFLAGS) $(CFLAGS) \
-	$(ffmpeg_test_LDFLAGS) $(LDFLAGS) -o $@
+am_HTTPClientSample_OBJECTS =  \
+	HTTPClientSample-HTTPClientSample.$(OBJEXT)
+HTTPClientSample_OBJECTS = $(am_HTTPClientSample_OBJECTS)
+HTTPClientSample_DEPENDENCIES = $(builddir)/../libivtutil.a
+am_HTTPClientSampleKeepalive_OBJECTS =  \
+	HTTPClientSampleKeepalive-HTTPClientSampleKeepalive.$(OBJEXT)
+HTTPClientSampleKeepalive_OBJECTS =  \
+	$(am_HTTPClientSampleKeepalive_OBJECTS)
+HTTPClientSampleKeepalive_DEPENDENCIES = $(builddir)/../libivtutil.a
 DEFAULT_INCLUDES = -I.@am__isrc@ -I$(top_builddir)
 depcomp = $(SHELL) $(top_srcdir)/config/depcomp
 am__depfiles_maybe = depfiles
@@ -80,8 +77,10 @@ am__v_CCLD_0 = @echo "  CCLD  " $@;
 AM_V_GEN = $(am__v_GEN_$(V))
 am__v_GEN_ = $(am__v_GEN_$(AM_DEFAULT_VERBOSITY))
 am__v_GEN_0 = @echo "  GEN   " $@;
-SOURCES = $(ffmpeg_test_SOURCES)
-DIST_SOURCES = $(am__ffmpeg_test_SOURCES_DIST)
+SOURCES = $(HTTPClientSample_SOURCES) \
+	$(HTTPClientSampleKeepalive_SOURCES)
+DIST_SOURCES = $(HTTPClientSample_SOURCES) \
+	$(HTTPClientSampleKeepalive_SOURCES)
 ETAGS = etags
 CTAGS = ctags
 DISTFILES = $(DIST_COMMON) $(DIST_SOURCES) $(TEXINFOS) $(EXTRA_DIST)
@@ -194,21 +193,16 @@ top_build_prefix = @top_build_prefix@
 top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
 AUTOMAKE_OPTIONS = foreign subdir-objects
-AM_CPPFLAGS = -I$(srcdir)/../ -I$(srcdir)
-@INCLUDE_FFMPEG_SAMPLES_TRUE@ffmpeg_test_SOURCES = ffmpeg_test.c  \
-@INCLUDE_FFMPEG_SAMPLES_TRUE@    auxiliary/get_bits.h \
-@INCLUDE_FFMPEG_SAMPLES_TRUE@    auxiliary/mpeg4audio.h  \
-@INCLUDE_FFMPEG_SAMPLES_TRUE@    auxiliary/mpeg4audio.c
+HTTPClientSample_SOURCES = HTTPClientSample.h \
+    HTTPClientSample.c
 
-@INCLUDE_FFMPEG_SAMPLES_TRUE@ffmpeg_test_LDADD = $(builddir)/../libcseg.a  $(builddir)/../../libivtutil/libivtutil.a  
-@INCLUDE_FFMPEG_SAMPLES_TRUE@ffmpeg_test_CFLAGS = $(libavformat_CFLAGS) $(libavutil_CFLAGS) \
-@INCLUDE_FFMPEG_SAMPLES_TRUE@    $(libavcodec_CFLAGS) $(libavfilter_CFLAGS) $(libswscale_CFLAGS) $(libswresample_CFLAGS)  \
-@INCLUDE_FFMPEG_SAMPLES_TRUE@    $(libavdevice_CFLAGS)
+HTTPClientSample_CPPFLAGS = -I$(srcdir)/../http_client
+HTTPClientSample_LDADD = $(builddir)/../libivtutil.a
+HTTPClientSampleKeepalive_SOURCES = HTTPClientSampleKeepalive.h \
+    HTTPClientSampleKeepalive.c
 
-@INCLUDE_FFMPEG_SAMPLES_TRUE@ffmpeg_test_LDFLAGS = $(libavformat_LIBS) $(libavutil_LIBS) \
-@INCLUDE_FFMPEG_SAMPLES_TRUE@    $(libavcodec_LIBS) $(libavfilter_LIBS) $(libswscale_LIBS) $(libswresample_LIBS) \
-@INCLUDE_FFMPEG_SAMPLES_TRUE@    $(libavdevice_LIBS)
-
+HTTPClientSampleKeepalive_LDADD = $(builddir)/../libivtutil.a
+HTTPClientSampleKeepalive_CPPFLAGS = -I$(srcdir)/../http_client
 all: all-am
 
 .SUFFIXES:
@@ -222,9 +216,9 @@ $(srcdir)/Makefile.in: @MAINTAINER_MODE_TRUE@ $(srcdir)/Makefile.am  $(am__confi
 	      exit 1;; \
 	  esac; \
 	done; \
-	echo ' cd $(top_srcdir) && $(AUTOMAKE) --foreign libcseg/samples/Makefile'; \
+	echo ' cd $(top_srcdir) && $(AUTOMAKE) --foreign libivtutil/samples/Makefile'; \
 	$(am__cd) $(top_srcdir) && \
-	  $(AUTOMAKE) --foreign libcseg/samples/Makefile
+	  $(AUTOMAKE) --foreign libivtutil/samples/Makefile
 .PRECIOUS: Makefile
 Makefile: $(srcdir)/Makefile.in $(top_builddir)/config.status
 	@case '$?' in \
@@ -246,27 +240,21 @@ $(am__aclocal_m4_deps):
 
 clean-noinstPROGRAMS:
 	-test -z "$(noinst_PROGRAMS)" || rm -f $(noinst_PROGRAMS)
-auxiliary/$(am__dirstamp):
-	@$(MKDIR_P) auxiliary
-	@: > auxiliary/$(am__dirstamp)
-auxiliary/$(DEPDIR)/$(am__dirstamp):
-	@$(MKDIR_P) auxiliary/$(DEPDIR)
-	@: > auxiliary/$(DEPDIR)/$(am__dirstamp)
-auxiliary/ffmpeg_test-mpeg4audio.$(OBJEXT): auxiliary/$(am__dirstamp) \
-	auxiliary/$(DEPDIR)/$(am__dirstamp)
-ffmpeg_test$(EXEEXT): $(ffmpeg_test_OBJECTS) $(ffmpeg_test_DEPENDENCIES) 
-	@rm -f ffmpeg_test$(EXEEXT)
-	$(AM_V_CCLD)$(ffmpeg_test_LINK) $(ffmpeg_test_OBJECTS) $(ffmpeg_test_LDADD) $(LIBS)
+HTTPClientSample$(EXEEXT): $(HTTPClientSample_OBJECTS) $(HTTPClientSample_DEPENDENCIES) 
+	@rm -f HTTPClientSample$(EXEEXT)
+	$(AM_V_CCLD)$(LINK) $(HTTPClientSample_OBJECTS) $(HTTPClientSample_LDADD) $(LIBS)
+HTTPClientSampleKeepalive$(EXEEXT): $(HTTPClientSampleKeepalive_OBJECTS) $(HTTPClientSampleKeepalive_DEPENDENCIES) 
+	@rm -f HTTPClientSampleKeepalive$(EXEEXT)
+	$(AM_V_CCLD)$(LINK) $(HTTPClientSampleKeepalive_OBJECTS) $(HTTPClientSampleKeepalive_LDADD) $(LIBS)
 
 mostlyclean-compile:
 	-rm -f *.$(OBJEXT)
-	-rm -f auxiliary/ffmpeg_test-mpeg4audio.$(OBJEXT)
 
 distclean-compile:
 	-rm -f *.tab.c
 
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/ffmpeg_test-ffmpeg_test.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@auxiliary/$(DEPDIR)/ffmpeg_test-mpeg4audio.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/HTTPClientSample-HTTPClientSample.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/HTTPClientSampleKeepalive-HTTPClientSampleKeepalive.Po@am__quote@
 
 .c.o:
 @am__fastdepCC_TRUE@	$(AM_V_CC)depbase=`echo $@ | sed 's|[^/]*$$|$(DEPDIR)/&|;s|\.o$$||'`;\
@@ -286,37 +274,37 @@ distclean-compile:
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(COMPILE) -c -o $@ `$(CYGPATH_W) '$<'`
 
-ffmpeg_test-ffmpeg_test.o: ffmpeg_test.c
-@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(ffmpeg_test_CFLAGS) $(CFLAGS) -MT ffmpeg_test-ffmpeg_test.o -MD -MP -MF $(DEPDIR)/ffmpeg_test-ffmpeg_test.Tpo -c -o ffmpeg_test-ffmpeg_test.o `test -f 'ffmpeg_test.c' || echo '$(srcdir)/'`ffmpeg_test.c
-@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/ffmpeg_test-ffmpeg_test.Tpo $(DEPDIR)/ffmpeg_test-ffmpeg_test.Po
+HTTPClientSample-HTTPClientSample.o: HTTPClientSample.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(HTTPClientSample_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT HTTPClientSample-HTTPClientSample.o -MD -MP -MF $(DEPDIR)/HTTPClientSample-HTTPClientSample.Tpo -c -o HTTPClientSample-HTTPClientSample.o `test -f 'HTTPClientSample.c' || echo '$(srcdir)/'`HTTPClientSample.c
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/HTTPClientSample-HTTPClientSample.Tpo $(DEPDIR)/HTTPClientSample-HTTPClientSample.Po
 @am__fastdepCC_FALSE@	$(AM_V_CC) @AM_BACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='ffmpeg_test.c' object='ffmpeg_test-ffmpeg_test.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='HTTPClientSample.c' object='HTTPClientSample-HTTPClientSample.o' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(ffmpeg_test_CFLAGS) $(CFLAGS) -c -o ffmpeg_test-ffmpeg_test.o `test -f 'ffmpeg_test.c' || echo '$(srcdir)/'`ffmpeg_test.c
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(HTTPClientSample_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o HTTPClientSample-HTTPClientSample.o `test -f 'HTTPClientSample.c' || echo '$(srcdir)/'`HTTPClientSample.c
 
-ffmpeg_test-ffmpeg_test.obj: ffmpeg_test.c
-@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(ffmpeg_test_CFLAGS) $(CFLAGS) -MT ffmpeg_test-ffmpeg_test.obj -MD -MP -MF $(DEPDIR)/ffmpeg_test-ffmpeg_test.Tpo -c -o ffmpeg_test-ffmpeg_test.obj `if test -f 'ffmpeg_test.c'; then $(CYGPATH_W) 'ffmpeg_test.c'; else $(CYGPATH_W) '$(srcdir)/ffmpeg_test.c'; fi`
-@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/ffmpeg_test-ffmpeg_test.Tpo $(DEPDIR)/ffmpeg_test-ffmpeg_test.Po
+HTTPClientSample-HTTPClientSample.obj: HTTPClientSample.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(HTTPClientSample_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT HTTPClientSample-HTTPClientSample.obj -MD -MP -MF $(DEPDIR)/HTTPClientSample-HTTPClientSample.Tpo -c -o HTTPClientSample-HTTPClientSample.obj `if test -f 'HTTPClientSample.c'; then $(CYGPATH_W) 'HTTPClientSample.c'; else $(CYGPATH_W) '$(srcdir)/HTTPClientSample.c'; fi`
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/HTTPClientSample-HTTPClientSample.Tpo $(DEPDIR)/HTTPClientSample-HTTPClientSample.Po
 @am__fastdepCC_FALSE@	$(AM_V_CC) @AM_BACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='ffmpeg_test.c' object='ffmpeg_test-ffmpeg_test.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='HTTPClientSample.c' object='HTTPClientSample-HTTPClientSample.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(ffmpeg_test_CFLAGS) $(CFLAGS) -c -o ffmpeg_test-ffmpeg_test.obj `if test -f 'ffmpeg_test.c'; then $(CYGPATH_W) 'ffmpeg_test.c'; else $(CYGPATH_W) '$(srcdir)/ffmpeg_test.c'; fi`
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(HTTPClientSample_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o HTTPClientSample-HTTPClientSample.obj `if test -f 'HTTPClientSample.c'; then $(CYGPATH_W) 'HTTPClientSample.c'; else $(CYGPATH_W) '$(srcdir)/HTTPClientSample.c'; fi`
 
-auxiliary/ffmpeg_test-mpeg4audio.o: auxiliary/mpeg4audio.c
-@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(ffmpeg_test_CFLAGS) $(CFLAGS) -MT auxiliary/ffmpeg_test-mpeg4audio.o -MD -MP -MF auxiliary/$(DEPDIR)/ffmpeg_test-mpeg4audio.Tpo -c -o auxiliary/ffmpeg_test-mpeg4audio.o `test -f 'auxiliary/mpeg4audio.c' || echo '$(srcdir)/'`auxiliary/mpeg4audio.c
-@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) auxiliary/$(DEPDIR)/ffmpeg_test-mpeg4audio.Tpo auxiliary/$(DEPDIR)/ffmpeg_test-mpeg4audio.Po
+HTTPClientSampleKeepalive-HTTPClientSampleKeepalive.o: HTTPClientSampleKeepalive.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(HTTPClientSampleKeepalive_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT HTTPClientSampleKeepalive-HTTPClientSampleKeepalive.o -MD -MP -MF $(DEPDIR)/HTTPClientSampleKeepalive-HTTPClientSampleKeepalive.Tpo -c -o HTTPClientSampleKeepalive-HTTPClientSampleKeepalive.o `test -f 'HTTPClientSampleKeepalive.c' || echo '$(srcdir)/'`HTTPClientSampleKeepalive.c
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/HTTPClientSampleKeepalive-HTTPClientSampleKeepalive.Tpo $(DEPDIR)/HTTPClientSampleKeepalive-HTTPClientSampleKeepalive.Po
 @am__fastdepCC_FALSE@	$(AM_V_CC) @AM_BACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='auxiliary/mpeg4audio.c' object='auxiliary/ffmpeg_test-mpeg4audio.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='HTTPClientSampleKeepalive.c' object='HTTPClientSampleKeepalive-HTTPClientSampleKeepalive.o' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(ffmpeg_test_CFLAGS) $(CFLAGS) -c -o auxiliary/ffmpeg_test-mpeg4audio.o `test -f 'auxiliary/mpeg4audio.c' || echo '$(srcdir)/'`auxiliary/mpeg4audio.c
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(HTTPClientSampleKeepalive_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o HTTPClientSampleKeepalive-HTTPClientSampleKeepalive.o `test -f 'HTTPClientSampleKeepalive.c' || echo '$(srcdir)/'`HTTPClientSampleKeepalive.c
 
-auxiliary/ffmpeg_test-mpeg4audio.obj: auxiliary/mpeg4audio.c
-@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(ffmpeg_test_CFLAGS) $(CFLAGS) -MT auxiliary/ffmpeg_test-mpeg4audio.obj -MD -MP -MF auxiliary/$(DEPDIR)/ffmpeg_test-mpeg4audio.Tpo -c -o auxiliary/ffmpeg_test-mpeg4audio.obj `if test -f 'auxiliary/mpeg4audio.c'; then $(CYGPATH_W) 'auxiliary/mpeg4audio.c'; else $(CYGPATH_W) '$(srcdir)/auxiliary/mpeg4audio.c'; fi`
-@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) auxiliary/$(DEPDIR)/ffmpeg_test-mpeg4audio.Tpo auxiliary/$(DEPDIR)/ffmpeg_test-mpeg4audio.Po
+HTTPClientSampleKeepalive-HTTPClientSampleKeepalive.obj: HTTPClientSampleKeepalive.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(HTTPClientSampleKeepalive_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT HTTPClientSampleKeepalive-HTTPClientSampleKeepalive.obj -MD -MP -MF $(DEPDIR)/HTTPClientSampleKeepalive-HTTPClientSampleKeepalive.Tpo -c -o HTTPClientSampleKeepalive-HTTPClientSampleKeepalive.obj `if test -f 'HTTPClientSampleKeepalive.c'; then $(CYGPATH_W) 'HTTPClientSampleKeepalive.c'; else $(CYGPATH_W) '$(srcdir)/HTTPClientSampleKeepalive.c'; fi`
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/HTTPClientSampleKeepalive-HTTPClientSampleKeepalive.Tpo $(DEPDIR)/HTTPClientSampleKeepalive-HTTPClientSampleKeepalive.Po
 @am__fastdepCC_FALSE@	$(AM_V_CC) @AM_BACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='auxiliary/mpeg4audio.c' object='auxiliary/ffmpeg_test-mpeg4audio.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='HTTPClientSampleKeepalive.c' object='HTTPClientSampleKeepalive-HTTPClientSampleKeepalive.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(ffmpeg_test_CFLAGS) $(CFLAGS) -c -o auxiliary/ffmpeg_test-mpeg4audio.obj `if test -f 'auxiliary/mpeg4audio.c'; then $(CYGPATH_W) 'auxiliary/mpeg4audio.c'; else $(CYGPATH_W) '$(srcdir)/auxiliary/mpeg4audio.c'; fi`
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(HTTPClientSampleKeepalive_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o HTTPClientSampleKeepalive-HTTPClientSampleKeepalive.obj `if test -f 'HTTPClientSampleKeepalive.c'; then $(CYGPATH_W) 'HTTPClientSampleKeepalive.c'; else $(CYGPATH_W) '$(srcdir)/HTTPClientSampleKeepalive.c'; fi`
 
 ID: $(HEADERS) $(SOURCES) $(LISP) $(TAGS_FILES)
 	list='$(SOURCES) $(HEADERS) $(LISP) $(TAGS_FILES)'; \
@@ -425,8 +413,6 @@ clean-generic:
 distclean-generic:
 	-test -z "$(CONFIG_CLEAN_FILES)" || rm -f $(CONFIG_CLEAN_FILES)
 	-test . = "$(srcdir)" || test -z "$(CONFIG_CLEAN_VPATH_FILES)" || rm -f $(CONFIG_CLEAN_VPATH_FILES)
-	-rm -f auxiliary/$(DEPDIR)/$(am__dirstamp)
-	-rm -f auxiliary/$(am__dirstamp)
 
 maintainer-clean-generic:
 	@echo "This command is intended for maintainers to use"
@@ -436,7 +422,7 @@ clean: clean-am
 clean-am: clean-generic clean-noinstPROGRAMS mostlyclean-am
 
 distclean: distclean-am
-	-rm -rf ./$(DEPDIR) auxiliary/$(DEPDIR)
+	-rm -rf ./$(DEPDIR)
 	-rm -f Makefile
 distclean-am: clean-am distclean-compile distclean-generic \
 	distclean-tags
@@ -482,7 +468,7 @@ install-ps-am:
 installcheck-am:
 
 maintainer-clean: maintainer-clean-am
-	-rm -rf ./$(DEPDIR) auxiliary/$(DEPDIR)
+	-rm -rf ./$(DEPDIR)
 	-rm -f Makefile
 maintainer-clean-am: distclean-am maintainer-clean-generic
 

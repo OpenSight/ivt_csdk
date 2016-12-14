@@ -8,5 +8,5 @@ URL: http://www.opensight.cn/
 Description: A minimal HLS segmenter library for embedded environment, which is very small and has no dependency
 Version: @PACKAGE_VERSION@
 Requires: 
-Libs: -L${libdir} -lcseg -lpthread
+Libs: -L${libdir} -lcseg -lpthread -livtutil
 Cflags: -I${includedir} -pthread
