@@ -11,3 +11,8 @@ endif
 if INCLUDE_LIBCSEG
 SUBDIRS += libcseg
 endif
+
+
+if INCLUDE_LIBRTMP_IVT
+SUBDIRS += librtmp_ivt
+endif

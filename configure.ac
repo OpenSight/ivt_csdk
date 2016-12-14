@@ -40,6 +40,13 @@ fi
 AM_CONDITIONAL([INCLUDE_LIBIVTUTIL], [test "x$libivtutil_library" = xyes])
 
 
+AC_ARG_WITH([librtmp-ivt], 
+[AS_HELP_STRING([--with-librtmp-ivt], 
+[would build the librtmp_ivt library @<:@default=yes@:>@])], 
+[librtmp_ivt_library=${withval}], [librtmp_ivt_library=yes]) 
+
+AM_CONDITIONAL([INCLUDE_LIBRTMP_IVT], [test "x$librtmp_ivt_library" = xyes])
+
 
 # Checks for programs.
 AC_PROG_CXX
@@ -118,6 +125,7 @@ AC_CONFIG_FILES([Makefile \
                  libivtutil/Makefile \
                  libivtutil/samples/Makefile \
                  libcseg/Makefile \
+                 librtmp_ivt/Makefile \
                  libcseg/samples/Makefile \
                  libcseg/libcseg.pc])
 AC_OUTPUT
@@ -130,6 +138,7 @@ Configure successfully!
 libivtutil included.................. : $libivtutil_library
 libcseg included..................... : $libcseg_library
 ffmpeg-sampels included ............. : $ffmpeg_samples
+librtmp_ivt included ................ : $librtmp_ivt_library
 
 
 

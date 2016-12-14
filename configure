@@ -683,6 +683,8 @@ CPPFLAGS
 LDFLAGS
 CXXFLAGS
 CXX
+INCLUDE_LIBRTMP_IVT_FALSE
+INCLUDE_LIBRTMP_IVT_TRUE
 INCLUDE_LIBIVTUTIL_FALSE
 INCLUDE_LIBIVTUTIL_TRUE
 INCLUDE_LIBCSEG_FALSE
@@ -762,6 +764,7 @@ enable_silent_rules
 with_ffmpeg_samples
 with_libcseg
 with_libivtutil
+with_librtmp_ivt
 enable_dependency_tracking
 '
       ac_precious_vars='build_alias
@@ -1431,6 +1434,7 @@ Optional Packages:
                           [default=no]
   --with-libcseg          would build the libcseg library [default=yes]
   --with-libivtutil       would build the libivtutil library [default=yes]
+  --with-librtmp-ivt      would build the librtmp_ivt library [default=yes]
 
 Some influential environment variables:
   CXX         C++ compiler command
@@ -2623,6 +2627,24 @@ else
   INCLUDE_LIBIVTUTIL_FALSE=
 fi
 
+
+
+
+# Check whether --with-librtmp-ivt was given.
+if test "${with_librtmp_ivt+set}" = set; then
+  withval=$with_librtmp_ivt; librtmp_ivt_library=${withval}
+else
+  librtmp_ivt_library=yes
+fi
+
+
+ if test "x$librtmp_ivt_library" = xyes; then
+  INCLUDE_LIBRTMP_IVT_TRUE=
+  INCLUDE_LIBRTMP_IVT_FALSE='#'
+else
+  INCLUDE_LIBRTMP_IVT_TRUE='#'
+  INCLUDE_LIBRTMP_IVT_FALSE=
+fi
 
 
 
@@ -8197,7 +8219,7 @@ fi
 done
 
 
-ac_config_files="$ac_config_files Makefile libivtutil/Makefile libivtutil/samples/Makefile libcseg/Makefile libcseg/samples/Makefile libcseg/libcseg.pc"
+ac_config_files="$ac_config_files Makefile libivtutil/Makefile libivtutil/samples/Makefile libcseg/Makefile librtmp_ivt/Makefile libcseg/samples/Makefile libcseg/libcseg.pc"
 
 cat >confcache <<\_ACEOF
 # This file is a shell script that caches the results of configure
@@ -8329,6 +8351,13 @@ if test -z "${INCLUDE_LIBIVTUTIL_TRUE}" && test -z "${INCLUDE_LIBIVTUTIL_FALSE}"
   { { $as_echo "$as_me:$LINENO: error: conditional \"INCLUDE_LIBIVTUTIL\" was never defined.
 Usually this means the macro was only invoked conditionally." >&5
 $as_echo "$as_me: error: conditional \"INCLUDE_LIBIVTUTIL\" was never defined.
+Usually this means the macro was only invoked conditionally." >&2;}
+   { (exit 1); exit 1; }; }
+fi
+if test -z "${INCLUDE_LIBRTMP_IVT_TRUE}" && test -z "${INCLUDE_LIBRTMP_IVT_FALSE}"; then
+  { { $as_echo "$as_me:$LINENO: error: conditional \"INCLUDE_LIBRTMP_IVT\" was never defined.
+Usually this means the macro was only invoked conditionally." >&5
+$as_echo "$as_me: error: conditional \"INCLUDE_LIBRTMP_IVT\" was never defined.
 Usually this means the macro was only invoked conditionally." >&2;}
    { (exit 1); exit 1; }; }
 fi
@@ -8867,6 +8896,7 @@ do
     "libivtutil/Makefile") CONFIG_FILES="$CONFIG_FILES libivtutil/Makefile" ;;
     "libivtutil/samples/Makefile") CONFIG_FILES="$CONFIG_FILES libivtutil/samples/Makefile" ;;
     "libcseg/Makefile") CONFIG_FILES="$CONFIG_FILES libcseg/Makefile" ;;
+    "librtmp_ivt/Makefile") CONFIG_FILES="$CONFIG_FILES librtmp_ivt/Makefile" ;;
     "libcseg/samples/Makefile") CONFIG_FILES="$CONFIG_FILES libcseg/samples/Makefile" ;;
     "libcseg/libcseg.pc") CONFIG_FILES="$CONFIG_FILES libcseg/libcseg.pc" ;;
 
@@ -9708,6 +9738,7 @@ Configure successfully!
 libivtutil included.................. : $libivtutil_library
 libcseg included..................... : $libcseg_library
 ffmpeg-sampels included ............. : $ffmpeg_samples
+librtmp_ivt included ................ : $librtmp_ivt_library
 
 
 
@@ -9723,6 +9754,7 @@ Configure successfully!
 libivtutil included.................. : $libivtutil_library
 libcseg included..................... : $libcseg_library
 ffmpeg-sampels included ............. : $ffmpeg_samples
+librtmp_ivt included ................ : $librtmp_ivt_library
 
 
 
