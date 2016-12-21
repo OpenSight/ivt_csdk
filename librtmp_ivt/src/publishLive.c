@@ -76,15 +76,15 @@ int publishLive_open(const char* url, rtmpPublisher *rPublish)
 		return -1;
 	} 
 	
+	sendSetChunkSize1(m_rtmp);
+	
 	if (RTMP_ConnectStream(m_rtmp,0) == FALSE)
 	{
 		RTMP_Close(m_rtmp);
 		RTMP_Free(m_rtmp);
 		return -1;
 	}
-    
-	sendSetChunkSize1(m_rtmp);
-    
+        
 	if(!RTMPPacket_Alloc(&rPublish->avPacket,AV_PACKET_SIZE+RTMP_MAX_HEADER_SIZE))
 	{
 		RTMP_Close(m_rtmp);
@@ -132,14 +132,17 @@ int publishLive_sendAV(rtmpPublisher *rPublish, const unsigned char* videoData, 
 		rPublish->sendSps = 0;
 		return 0;
     }
-    
-    if(rPublish->aTimeS > rPublish->vTimeS+PTS_DELAY_MS_200)
-        rPublish->vTimeS = rPublish->aTimeS;
-	else if(rPublish->aTimeS+PTS_DELAY_MS_200 < rPublish->vTimeS)
-        frmRate<<=3;
-    else if(rPublish->aTimeS+PTS_DELAY_MS_100 < rPublish->vTimeS)
-        frmRate<<=2;
-  
+
+	if(rPublish->aTimeS)
+	{
+		if(rPublish->aTimeS > rPublish->vTimeS+PTS_DELAY_MS_200)
+			rPublish->vTimeS = rPublish->aTimeS;
+		else if(rPublish->aTimeS+PTS_DELAY_MS_200 < rPublish->vTimeS)
+			frmRate<<=3;
+		else if(rPublish->aTimeS+PTS_DELAY_MS_100 < rPublish->vTimeS)
+			frmRate<<=2;
+	}
+
     if(1==frmType) //idr avc frame
     {
         int nalLen;
@@ -337,7 +340,11 @@ int publishLive_sendAV(rtmpPublisher *rPublish, const unsigned char* videoData, 
 		i+=(frameLen-7);
 		avPacket->m_nBodySize = i;
 		avPacket->m_nTimeStamp = rPublish->aTimeS;
-        rPublish->aTimeS += fpsA_ms;
+		
+		if(rPublish->aTimeS)
+        	rPublish->aTimeS += fpsA_ms;
+		else
+			rPublish->aTimeS = rPublish->vTimeS;			
         
 		if(!RTMP_IsConnected(rtmp))
 		{
