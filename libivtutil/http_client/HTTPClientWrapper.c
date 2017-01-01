@@ -232,19 +232,26 @@ int HTTPWrapperGetHostByName(char *name, UINT32 *address)
 
     if(iHostType > 0)
     {
+        struct addrinfo hints;
+        struct addrinfo *result = NULL;
+        int ret;
+        
+        memset((void *)&hints, 0, sizeof(struct addrinfo));
+        hints.ai_family = AF_INET;    /* Allow IPv4 */
+        hints.ai_socktype = SOCK_STREAM; /* stream socket */
+        hints.ai_flags = 0;
+        hints.ai_protocol = 0;          /* Any protocol */
 
-        HostEntry = gethostbyname(name); 
-        if(HostEntry)
-        {
-            *(address) = *((uint32_t*)HostEntry->h_addr_list[0]);
-
-            //*(address) = (unsigned long)HostEntry->h_addr_list[0];
+        ret = getaddrinfo(name, NULL, &hints, &result);
+        if (ret == 0) {
+            *(address) = ((struct sockaddr_in *)result->ai_addr)->sin_addr.s_addr;
+            freeaddrinfo(result);
             return 0; // OK
+        }else{
+            fprintf(stderr, "getaddrinfo: %s\n", gai_strerror(ret));
+            return -1; //Error
         }
-        else
-        {
-            return -1; // Error
-        }
+
     }
 
     else // numeric address - no need for DNS resolve

@@ -41,6 +41,7 @@
 #include	<string.h>
 #include	<ctype.h>
 #include	<time.h>
+#include    <sys/types.h>
 #include	<sys/socket.h>
 #include	<sys/un.h>
 #include	<netinet/in.h>
@@ -51,6 +52,7 @@
 #include	<errno.h>
 #include	<stdarg.h>
 #include    <stdint.h>
+
 
 #define		SOCKET_ERROR			-1
 
