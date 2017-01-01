@@ -383,9 +383,12 @@ RTMPPacket_Reset(RTMPPacket *p)
 }
 
 int
-RTMPPacket_Alloc(RTMPPacket *p, int nSize)
+RTMPPacket_Alloc(RTMPPacket *p, uint32_t nSize)
 {
-  char *ptr = malloc(nSize + RTMP_MAX_HEADER_SIZE);
+  char *ptr;
+  if (nSize > SIZE_MAX - RTMP_MAX_HEADER_SIZE)
+    return FALSE;
+  ptr = malloc(nSize + RTMP_MAX_HEADER_SIZE);
   if (!ptr)
     return FALSE;
   p->m_body = ptr + RTMP_MAX_HEADER_SIZE;
@@ -1380,7 +1383,7 @@ RTMP_GetNextMediaPacket(RTMP *r, RTMPPacket *packet)
   while (!bHasMediaPacket && RTMP_IsConnected(r)
 	 && RTMP_ReadPacket(r, packet))
     {
-      if (!RTMPPacket_IsReady(packet))
+      if (!RTMPPacket_IsReady(packet) || !packet->m_nBodySize)
 	{
 	  continue;
 	}
@@ -3835,7 +3838,6 @@ RTMP_ReadPacket(RTMP *r, RTMPPacket *packet)
 	{
 	  packet->m_nBodySize = AMF_DecodeInt24(header + 3);
 	  packet->m_nBytesRead = 0;
-	  RTMPPacket_Free(packet);
 
 	  if (nSize > 6)
 	    {
