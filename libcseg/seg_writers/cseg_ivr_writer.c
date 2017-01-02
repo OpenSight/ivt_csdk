@@ -599,6 +599,25 @@ static int upload_file(IvrWriterPriv * priv,
         return ret;
     }
     http_response_buf[response_size] = 0;
+    //Jam(2017-1-2): for some time, Aliyun OSS would return a error status for a normal operation, 
+    // but try again we can get the correct result
+    if(status_code >= 400){ //try to reconnect for one more time
+        HTTPClientSetConnection(priv->upload_http_session, FALSE);
+        random_msleep();        
+        ret = http_put(priv->upload_http_session, 
+                       file_uri, io_timeout, "video/mp2t",
+                       segment,
+                       HTTP_DEFAULT_RETRY_NUM,
+                       upload_time, 
+                       consumer_active, 
+                       &status_code, 
+                       http_response_buf, &response_size);
+        if(ret < 0){
+            return ret;
+        }
+        http_response_buf[response_size] = 0;
+    }           
+    
     
     if(status_code < 200 || status_code >= 300){
         ret = http_status_to_av_code(status_code);
