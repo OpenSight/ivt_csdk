@@ -325,6 +325,7 @@ static int http_put(HTTP_SESSION_HANDLE session,
     HTTP_CLIENT             HTTPClient;
     uint32_t                  nSize = 0, nTotal = 0;  
     char segment_size_str[32];
+    int64_t org_upload_time = upload_time;
     
     if(retries <= 0){
         retries = HTTP_DEFAULT_RETRY_NUM;
@@ -384,6 +385,15 @@ static int http_put(HTTP_SESSION_HANDLE session,
                 //cleanup the current HTTP client session hanle
                 HTTPClientSetConnection(session, FALSE);
                 HTTPClientReset(session);
+                
+                //if retry for timeout, use a shorter upload time to avoid queue congest
+                if(ret == HTTP_CLIENT_ERROR_SOCKET_TIME_OUT){
+                    retry_upload_time = (int64_t)(segment->duration * 0.5 * 1000);
+                    if(upload_time > retry_upload_time){
+                        upload_time = retry_upload_time;
+                    }
+                }
+                
                 cseg_log(CSEG_LOG_ERROR,  
                          "[cseg_ivr_writer] HTTP PUT HTTPClientWriteData failed(%d), retry\n", ret);  
                 random_msleep();
@@ -770,9 +780,9 @@ static int ivr_write_segment(CachedSegmentContext *cseg, CachedSegment *segment,
     int64_t upload_time;
     
     if(queue_len > 1){
-        upload_time = (int64_t)(segment->duration * 0.5) * 1000;
+        upload_time = (int64_t)(segment->duration * 0.5 * 1000);
     }else{
-        upload_time = (int64_t)(segment->duration * 0.8) * 1000;
+        upload_time = (int64_t)(segment->duration * 0.8 * 1000);
     }
     
     //get URI of the file for segment
