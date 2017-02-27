@@ -1,0 +1,392 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>IVR RPC 协议 &mdash; IVR 0.0.1 文档</title>
+    
+    <link rel="stylesheet" href="_static/classic.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '0.0.1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <script type="text/javascript" src="_static/translations.js"></script>
+    <link rel="top" title="IVR 0.0.1 文档" href="index.html" />
+    <link rel="prev" title="IVR使用文档" href="index.html" /> 
+  </head>
+  <body role="document">
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>导航</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="总目录"
+             accesskey="I">索引</a></li>
+        <li class="right" >
+          <a href="index.html" title="IVR使用文档"
+             accesskey="P">上一页</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">IVR 0.0.1 文档</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="ivr-rpc">
+<h1>IVR RPC 协议<a class="headerlink" href="#ivr-rpc" title="永久链接至标题">¶</a></h1>
+<div class="section" id="id1">
+<h2>名词解释<a class="headerlink" href="#id1" title="永久链接至标题">¶</a></h2>
+<ul class="simple">
+<li>IVR：internet video recorder，一种基于物联网云计算技术的网络视频录象机；
+与传统NVR，DVR类似，IVR可以接入和管理各种摄像头，支持录像，支持直播点播视频等功能，
+但是与传统NVR，DVR的不同在于用户可以在互联网上观看直播点播，
+并且因为应用了云计算技术，IVR拥有近于无限的接入能力以及海量的并发直播点播请求；IVR主要由IVC与IVT两部分组成。</li>
+<li>IVC：internet video cloud，运行于云端的视频云平台；
+提供API接口以及管理网页，用户可以随时通过互联网，以网页，APP公众号等方式接入IVC，对其名下的摄像头进行管理，并进行直播点播。</li>
+<li>IVT：安装与客户现场的，具有与IVC通信能力的视频设备，如摄像头，NVR等，IVT通过IVR RPC协议接入IVC，并接受IVC的管理。</li>
+<li>Channel：IVT上的视频通道；
+一般一路摄像头为一条channel，如果IVT为摄像头，则只有一条通道；
+如果IVT为NVR，则会有多条通道，每条通道代表一个NVR管理下的摄像头。</li>
+<li>IVR RPC：IVT与IVR之间采用的通信协议</li>
+</ul>
+</div>
+<div class="section" id="id2">
+<h2>协议特性<a class="headerlink" href="#id2" title="永久链接至标题">¶</a></h2>
+<p>IVR RPC底层基于TCP/IP的websocket，应用层为基于JSON的自定义协议。</p>
+<p>应用层协议的基本通信模式包括RPC与event（事件通知）两种：</p>
+<ol class="arabic simple">
+<li>RPC为一应一答模式；通信中的两个端点均可以发起RPC请求，且两个方向上的RPC请求是完全独立的；但是单一方向上，只有在当前请求被应答后，才能发起下一个RPC请求</li>
+<li>事件通知是没有应答的；通信中的两个端点均可以给对方发送事件通知；事件通知可以随时发起，不受当前是否有RPC正在进行的影响。</li>
+</ol>
+</div>
+<div class="section" id="id3">
+<h2>应用层协议数据包格式<a class="headerlink" href="#id3" title="永久链接至标题">¶</a></h2>
+<p>此处数据包指的是应用层协议的数据包，即websocket的payload/message。数据包使用JSON标准进行串行化。</p>
+<div class="section" id="rpc-request">
+<h3>RPC request<a class="headerlink" href="#rpc-request" title="永久链接至标题">¶</a></h3>
+<p>RPC请求包的格式</p>
+<div class="highlight-python"><div class="highlight"><pre>{
+  “req”: &lt;字符串，必填，请求的RPC方法&gt;,
+  “params”: &lt;JSON对象，可选，RPC方法的参数；当方法没有参数时，此域不存在&gt;,
+  “seq”: &lt;整数，必填，RPC的序列号；没发送一次请求，+1&gt;
+}
+</pre></div>
+</div>
+</div>
+<div class="section" id="rpcresponse">
+<h3>RPC调用成功的response<a class="headerlink" href="#rpcresponse" title="永久链接至标题">¶</a></h3>
+<p>当RPC调用成功，应答包的格式</p>
+<div class="highlight-python"><div class="highlight"><pre>{
+  “seq”: &lt;整数，必填，RPC的序列号；与对应的RPC请求的序列号一致&gt;,
+  “resp”: &lt;JSON对象，必选，应答内容&gt;
+}
+</pre></div>
+</div>
+</div>
+<div class="section" id="id4">
+<h3>RPC调用失败的response<a class="headerlink" href="#id4" title="永久链接至标题">¶</a></h3>
+<p>当RPC调用失败，应答包的格式</p>
+<div class="highlight-python"><div class="highlight"><pre>{
+  “seq”: &lt;整数，必填，RPC的序列号；与对应的RPC请求的序列号一致&gt;,
+  “err”: {
+    “code”: &lt;整数，必填，错误码&gt;,
+    “msg”: &lt;字符串，必填，错误信息&gt;
+  }
+}
+</pre></div>
+</div>
+</div>
+<div class="section" id="id5">
+<h3>事件通知<a class="headerlink" href="#id5" title="永久链接至标题">¶</a></h3>
+<p>事件通知包的格式</p>
+<div class="highlight-python"><div class="highlight"><pre>{
+  “event”: &lt;字符串，必填，事件名称&gt;,
+  “params”: &lt;JSON对象，可选，参数；当没有参数时，该域不存在&gt;
+}
+</pre></div>
+</div>
+</div>
+</div>
+<div class="section" id="id6">
+<h2>异常处理<a class="headerlink" href="#id6" title="永久链接至标题">¶</a></h2>
+<p>当通讯的一段发现如下异常时，需主动断开websocket连接：</p>
+<ol class="arabic simple">
+<li>RPC的request与response的seq（序列号不一致）</li>
+<li>在没有响应上一个RPC request的情况下收到其他RPC request</li>
+<li>调用的RPC方法不存在</li>
+<li>数据包格式不正确</li>
+</ol>
+</div>
+<div class="section" id="id7">
+<h2>协议流程<a class="headerlink" href="#id7" title="永久链接至标题">¶</a></h2>
+<ol class="arabic simple">
+<li>IVT向IVC发起websocket连接，并携带上login_code，login_password等信息。</li>
+<li>IVC测在接收到请求后，验证IVT身份，若通过，则与IVT建立websocket连接。</li>
+<li>IVT定期向IVC发送keepalive事件，在keepalive事件中携带其下摄像头的状态信息。</li>
+<li>根据业务安排，IVT与IVC可以进行各种RPC与event的交换。</li>
+</ol>
+<p>IVC的websocket URL格式如下:</p>
+<div class="highlight-python"><div class="highlight"><pre>ws://&lt;IVC host:port&gt;/ivc? login_code=&lt;IVT登录名&gt;&amp;login_passwd=&lt;IVT登录密码&gt;&amp;project=&lt;所属项目名称&gt;&amp;hardware_model=&lt;IVT的硬件型号&gt;&amp;firmware_model=&lt;IVT的固件版本号&gt;
+</pre></div>
+</div>
+</div>
+<div class="section" id="ivcrpc">
+<h2>IVC支持的RPC方法<a class="headerlink" href="#ivcrpc" title="永久链接至标题">¶</a></h2>
+<p>此处描述所有IVT可以调用的IVC的RPC方法。其中“参数”指的是RPC request数据包中的params域；
+“成功应答”指的是RPC调用成功的response中的resp域；“失败应答”值得是RPC调用失败的response中的err域。</p>
+<div class="section" id="preview-server">
+<h3>preview_server<a class="headerlink" href="#preview-server" title="永久链接至标题">¶</a></h3>
+<p>IVT可通过该方法获取用于上传摄像头预览图的上传服务器的地址。</p>
+<p>参数：</p>
+<div class="highlight-python"><div class="highlight"><pre>无
+</pre></div>
+</div>
+<p>成功应答：</p>
+<div class="highlight-python"><div class="highlight"><pre>字符串，必填，上传服务器的域名/IP；如 192.168.1.120:9900
+</pre></div>
+</div>
+</div>
+<div class="section" id="ivt-package">
+<h3>ivt_package<a class="headerlink" href="#ivt-package" title="永久链接至标题">¶</a></h3>
+<p>IVT可通过该方法获取最新的固件的版本，及其下载URL。</p>
+<p>参数：</p>
+<div class="highlight-python"><div class="highlight"><pre>无
+</pre></div>
+</div>
+<p>成功应答：</p>
+<div class="highlight-python"><div class="highlight"><pre>{
+  &quot;ivt&quot;: {
+    &quot;version&quot;: &lt;必填，字符串；最新固件的版本号&gt;
+    &quot;url&quot;: &lt;比填，字符串；最新固件的下载地址&gt;
+  }
+}
+</pre></div>
+</div>
+</div>
+</div>
+<div class="section" id="ivtrpc">
+<h2>IVT支持的RPC方法<a class="headerlink" href="#ivtrpc" title="永久链接至标题">¶</a></h2>
+<p>此处描述所有可以被调用的IVT的RPC方法。</p>
+<div class="section" id="rtmppublish">
+<h3>RTMPPublish<a class="headerlink" href="#rtmppublish" title="永久链接至标题">¶</a></h3>
+<p>IVC可以通过该方法请求IVT publish一条RTMP流到指定URL。</p>
+<p>参数：</p>
+<div class="highlight-python"><div class="highlight"><pre>{
+  &quot;channel&quot;: &lt;必填，整数&gt;,
+  &quot;quality&quot;: &lt;必填，字符串；可选值为：LD、SD、HD、FHD，分别代表低清，标清，高清，全高清&gt;,
+  &quot;url&quot;: &lt;必填，字符串；publish RTMP流的目标URL&gt;,
+  &quot;stream_Id&quot;: &lt;必填，字符串；用来标识这条流的ID&gt;
+}
+</pre></div>
+</div>
+<p>成功应答（即publish成功，或该RTPM stream已经存在）：</p>
+<div class="highlight-python"><div class="highlight"><pre>空
+</pre></div>
+</div>
+</div>
+<div class="section" id="rtmpstoppublish">
+<h3>RTMPStopPublish<a class="headerlink" href="#rtmpstoppublish" title="永久链接至标题">¶</a></h3>
+<p>IVC可以通过该方法请求IVT结束正在publish的RTMP流。</p>
+<p>参数：</p>
+<div class="highlight-python"><div class="highlight"><pre>{
+  &quot;stream_id&quot;: &lt;必填，字符串；RTMPPublish时给的stream_id&gt;,
+  &quot;channel&quot;: &lt;必填，整数&gt;
+}
+</pre></div>
+</div>
+<p>成功应答（成功结束，或该流不存在）：</p>
+<div class="highlight-python"><div class="highlight"><pre>空
+</pre></div>
+</div>
+</div>
+<div class="section" id="ptzctrl">
+<h3>ptzCtrl<a class="headerlink" href="#ptzctrl" title="永久链接至标题">¶</a></h3>
+<p>IVC可以通过该方法操作摄像头的云台。</p>
+<p>参数：</p>
+<div class="highlight-python"><div class="highlight"><pre>{
+  &quot;channel&quot;: &lt;必填，整数&gt;,
+  &quot;op&quot;: &lt;必填，字符串；云台的操作码，具体参见下面列表&gt;,
+  &quot;speed&quot;: &lt;必填，整数；云台移动速度，范围为0-100，0最慢，100最快&gt;,
+}
+</pre></div>
+</div>
+<table border="1" class="docutils">
+<colgroup>
+<col width="35%" />
+<col width="35%" />
+<col width="29%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">op</th>
+<th class="head">操作</th>
+<th class="head">其他</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td>up</td>
+<td>上</td>
+<td>&nbsp;</td>
+</tr>
+<tr class="row-odd"><td>down</td>
+<td>下</td>
+<td>&nbsp;</td>
+</tr>
+<tr class="row-even"><td>left</td>
+<td>左</td>
+<td>&nbsp;</td>
+</tr>
+<tr class="row-odd"><td>right</td>
+<td>右</td>
+<td>&nbsp;</td>
+</tr>
+<tr class="row-even"><td>upleft</td>
+<td>左上</td>
+<td>&nbsp;</td>
+</tr>
+<tr class="row-odd"><td>upright</td>
+<td>右上</td>
+<td>&nbsp;</td>
+</tr>
+<tr class="row-even"><td>downleft</td>
+<td>左下</td>
+<td>&nbsp;</td>
+</tr>
+<tr class="row-odd"><td>downright</td>
+<td>右下</td>
+<td>&nbsp;</td>
+</tr>
+<tr class="row-even"><td>stop</td>
+<td>停止</td>
+<td>&nbsp;</td>
+</tr>
+<tr class="row-odd"><td>zoomin</td>
+<td>拉近</td>
+<td>&nbsp;</td>
+</tr>
+<tr class="row-even"><td>zoomout</td>
+<td>拉远</td>
+<td>&nbsp;</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<div class="section" id="ivcevent">
+<h2>IVC支持的event<a class="headerlink" href="#ivcevent" title="永久链接至标题">¶</a></h2>
+<p>此处描述IVC接受的event事件通知。“参数”指的是事件通知数据包中的params域。</p>
+<div class="section" id="keepalive">
+<h3>Keepalive<a class="headerlink" href="#keepalive" title="永久链接至标题">¶</a></h3>
+<p>IVT利用该事件定期向IVC通知工作状态，IVC以此作为IVT仍然在线的依据。</p>
+<p>参数：</p>
+<div class="highlight-python"><div class="highlight"><pre>{
+  &#39;state&#39;: &lt;必填，整数；IVT的状态，1：在线，2：升级中&gt;
+  &#39;channels&#39;: {
+    0: {&#39;state&#39;: &lt;必填，整数；该channel的状态，0：离线，1：在线，2：直播中&gt;}
+    1: {&#39;state&#39;: &lt;必填，整数；该channel的状态，0：离线，1：在线，2：直播中&gt;}
+    ......
+  }
+}
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">內容目录</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">IVR RPC 协议</a><ul>
+<li><a class="reference internal" href="#id1">名词解释</a></li>
+<li><a class="reference internal" href="#id2">协议特性</a></li>
+<li><a class="reference internal" href="#id3">应用层协议数据包格式</a><ul>
+<li><a class="reference internal" href="#rpc-request">RPC request</a></li>
+<li><a class="reference internal" href="#rpcresponse">RPC调用成功的response</a></li>
+<li><a class="reference internal" href="#id4">RPC调用失败的response</a></li>
+<li><a class="reference internal" href="#id5">事件通知</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#id6">异常处理</a></li>
+<li><a class="reference internal" href="#id7">协议流程</a></li>
+<li><a class="reference internal" href="#ivcrpc">IVC支持的RPC方法</a><ul>
+<li><a class="reference internal" href="#preview-server">preview_server</a></li>
+<li><a class="reference internal" href="#ivt-package">ivt_package</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#ivtrpc">IVT支持的RPC方法</a><ul>
+<li><a class="reference internal" href="#rtmppublish">RTMPPublish</a></li>
+<li><a class="reference internal" href="#rtmpstoppublish">RTMPStopPublish</a></li>
+<li><a class="reference internal" href="#ptzctrl">ptzCtrl</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#ivcevent">IVC支持的event</a><ul>
+<li><a class="reference internal" href="#keepalive">Keepalive</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+  <h4>上一个主题</h4>
+  <p class="topless"><a href="index.html"
+                        title="上一章">IVR使用文档</a></p>
+  <div role="note" aria-label="source link">
+    <h3>本页</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/rpc.txt"
+            rel="nofollow">显示源代码</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>快速搜索</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="转向" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    输入相关的术语，模块，类或者函数名称进行搜索
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>导航</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="总目录"
+             >索引</a></li>
+        <li class="right" >
+          <a href="index.html" title="IVR使用文档"
+             >上一页</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">IVR 0.0.1 文档</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &copy; 版权所有 2016, OpenSight.
+      由 <a href="http://sphinx-doc.org/">Sphinx</a> 1.3.6 创建。
+    </div>
+  </body>
+</html>
