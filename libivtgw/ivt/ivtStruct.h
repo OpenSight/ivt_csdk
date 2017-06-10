@@ -79,6 +79,27 @@ typedef struct
 	int sensitivity;
 	int delay;
 }ivtRPCMDC;
+
+typedef struct
+{
+	int channel;
+	int enable;
+	int start;
+	int end;
+	int start1;
+	int end1;
+	int sensitivity;
+	int delay;
+	int ulx;
+	int uly;	
+	int urx;
+	int ury;	
+	int dlx;
+	int dly;
+	int drx;
+	int dry;
+}ivtRPCRectDC;
+
 //----------------------------ivt ptz event------------------------------------
 typedef struct
 {
@@ -151,6 +172,7 @@ typedef struct
 	int chnlID[IVT_CHANNEL_NUM];
 	char outAlarmState[IVT_CHANNEL_NUM];
 	char motionState[IVT_CHANNEL_NUM];
+	char rectState[IVT_CHANNEL_NUM]; //AlarmRectIntrusionDetectConfig
 	char recSession[IVT_CHANNEL_NUM][IVT_RCD_ID_SIZE];
 	int chnlNum;
 }ivtRPCKeepAlive;
@@ -164,6 +186,7 @@ typedef struct
 	
 	char outAlarmState[IVT_CHANNEL_NUM];
 	char motionState[IVT_CHANNEL_NUM];
+	char rectState[IVT_CHANNEL_NUM]; //AlarmRectIntrusionDetectConfig
 	//char lossState[IVT_CHANNEL_NUM];	
 	//char blindState[IVT_CHANNEL_NUM];
 	

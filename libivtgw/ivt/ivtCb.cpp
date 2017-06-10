@@ -273,7 +273,7 @@ int ivc_rtmpPublishCb(ivtRPCStruct *para,  ivtRPCStruct *paraOut)
 	root["stream_Id"] = rtmp->streamID;
 	root["url"] = rtmp->url;
 	root["max_bitrate"] = rtmp->max_bitrate;
-	
+
 	jWriter.write(root);
 	if(create_http_client(HTTP_URL, http_port, &fd, HTTP_RECV_TIMEOUT+10)<0)
 	{
@@ -827,6 +827,168 @@ int ivc_alarmMDCfgCb(ivtRPCStruct *para,  ivtRPCStruct *paraOut)
 	}
 
 	if(sendRequest(fd, strOut.c_str(), "SetAlarmCfg.cgi", strOut.length())<0)
+	{
+		IVT_ERR("create_http_client err!\n");
+		goto ERR_END;
+	}
+
+	if(getResponse(fd, JsonData, 512)<0)
+	{
+	    IVT_ERR("getResponse err!\n");
+		goto ERR_END;
+	}
+
+	paraOut->rpcType = RPC_RESP;
+	paraOut->subType = IVC_ALARMMOVEDETECTCONFIG;
+	paraOut->seq = para->seq;
+	close_http_client(fd);
+    return 0;
+ERR_END:
+	paraOut->rpcType = RPC_ERR;
+	paraOut->subType = IVC_ALARMMOVEDETECTCONFIG;
+	paraOut->seq = para->seq;
+	err->errCode = 1;
+	strcpy(err->msg, "error");
+	close_http_client(fd);
+    return -1;
+}
+
+int ivc_alarmRectDCfgCb(ivtRPCStruct *para,  ivtRPCStruct *paraOut)
+{
+	Json::Value root;
+	Json::Value arrayObj;
+	Json::Value item;
+	Json::Value subItem;
+	Json::Value tempItem;
+    int i, j, h0, m0, s0, h1, m1, s1;
+	int fd=-1;
+	char rect[] = "Rect";
+	char sector[] = "0 0:0:0-24:0:0";
+	char setTime[20];
+	char setTime1[20];
+	//char regionArray[23];
+	char JsonData[512];
+	string strOut;
+	Json::FastWriter jWriter(strOut);
+
+	ivtRPCRectDC *rectDc = (ivtRPCRectDC *)(para->params);
+	ivtRPCErr *err = (ivtRPCErr *)paraOut->params;
+
+	//item["AlarmColor"] = 255;
+	item["Channel"] = rectDc->channel;
+	item["Enable"] = rectDc->enable;
+	item["Level"] = rectDc->sensitivity/20+1;
+	item["Type"] = rect;
+    //EventHandler
+	subItem["AlarmOutEn"] = 0;
+	subItem["EventLatch"] = rectDc->delay;
+	subItem["Mail"] = 0;
+	subItem["PtzEn"] = 0;
+	subItem["RecordEn"] = 0;
+	subItem["SnapEn"] = 0;
+	item["EventHandler"] = subItem;
+
+	//RectInfo****************************
+	subItem.clear();
+	tempItem["x"] = (int)(rectDc->ulx*81.92);
+	tempItem["y"] = (int)(rectDc->uly*81.92);
+	subItem["LU"]= tempItem;
+
+	tempItem["x"] = (int)(rectDc->dlx*81.92);
+	tempItem["y"] = (int)(rectDc->dly*81.92);
+	subItem["LD"]= tempItem;
+
+	tempItem["x"] = (int)(rectDc->urx*81.92);
+	tempItem["y"] = (int)(rectDc->ury*81.92);
+	subItem["RU"]= tempItem;
+
+	tempItem["x"] = (int)(rectDc->drx*81.92);
+	tempItem["y"] = (int)(rectDc->dry*81.92);
+	subItem["RD"]= tempItem;
+
+	subItem["index"] = 0;
+    arrayObj.append(subItem);
+
+	item["RectInfo"] = arrayObj;
+	item["RectNum"] = 1;
+	//RectInfo****************************
+
+	subItem.clear();
+
+    //Sector
+	h0 = rectDc->start/3600;
+	m0 = (rectDc->start-3600*h0)/60;
+	s0 = rectDc->start-3600*h0-60*m0;
+
+	h1 = rectDc->end/3600;
+	m1 = (rectDc->end-3600*h1)/60;
+	s1 = rectDc->end-3600*h1-60*m1;
+
+	sprintf(setTime, "1 %d:%d:%d-%d:%d:%d", h0, m0, s0, h1, m1, s1);
+
+	if(-1!=rectDc->start1)
+	{
+		h0 = rectDc->start1/3600;
+		m0 = (rectDc->start1-3600*h0)/60;
+		s0 = rectDc->start1-3600*h0-60*m0;
+
+		h1 = rectDc->end1/3600;
+		m1 = (rectDc->end1-3600*h1)/60;
+		s1 = rectDc->end1-3600*h1-60*m1;
+
+		sprintf(setTime1, "1 %d:%d:%d-%d:%d:%d", h0, m0, s0, h1, m1, s1);
+	}
+	else
+	{
+		strcpy(setTime1, sector);
+	}
+
+	arrayObj.clear();
+	for(i=0;i<7;i++)
+	{
+	    subItem.clear();
+		subItem.append(setTime);
+		subItem.append(setTime1);
+	    for(j=2;j<6;j++)
+	    {
+	    	subItem.append(sector);
+		}
+		arrayObj.append(subItem);
+	}
+	item["Sector"] = arrayObj;
+	arrayObj.clear();
+	arrayObj.append(item);
+
+	root["AlarmCfg"] = arrayObj;
+//configState
+    subItem.clear();
+    arrayObj.clear();
+	item.clear();
+
+	subItem["Abandon"] = 0;
+	subItem["Card"] = 0;
+	subItem["ColorDvt"] = 0;
+	subItem["CrossLine"] = 0;
+	subItem["CrossNet"] = 1;
+	subItem["Face"] = 0;
+	subItem["Focus"] = 0;
+	subItem["Leave"] = 0;
+	subItem["Scene"] = 0;
+	subItem["Trace"] = 0;
+	item["Enabled"] = subItem;
+    item["Channel"] = rectDc->channel;
+	arrayObj.append(item);
+	root["configState"] = arrayObj;
+
+    jWriter.write(root);
+
+    if(create_http_client(HTTP_URL, http_port, &fd, HTTP_RECV_TIMEOUT)<0)
+	{
+		IVT_ERR("create_http_client err!\n");
+		goto ERR_END;
+	}
+
+	if(sendRequest(fd, strOut.c_str(), "SetIntDetectCfg.cgi", strOut.length())<0)
 	{
 		IVT_ERR("create_http_client err!\n");
 		goto ERR_END;
@@ -1438,11 +1600,11 @@ ERR_END:
 //-------------------------alarm--------------------------------------------------------
 int ivt_recvAlarmData(ivtRPCAlarmNotify *alarm, int fd)
 {
-	char alarmData[512];
+	char alarmData[768];
 	char *ptr;
     int retVal = -1;
 
-	if(getResponseAndPost(fd, alarmData, 512)<0)
+	if(getResponseAndPost(fd, alarmData, 768)<0)
 	{
 		IVT_ERR("getResponse err!\n");
 		retVal = -2; //http connection err, reset http client.
@@ -1453,9 +1615,12 @@ int ivt_recvAlarmData(ivtRPCAlarmNotify *alarm, int fd)
 	{
 		ptr = strstr(alarmData, "type=");
 		if(ptr)
-			sscanf(ptr, "type=%1d", &alarm->type);
+			sscanf(ptr, "type=%d&", &alarm->type);
 		else
 			goto ERR_END;
+
+		if(10==alarm->type)
+			alarm->type = IVT_ALARM_RECT;
 
 		ptr = strstr(alarmData, "status=");
 		if(ptr)
@@ -1474,7 +1639,7 @@ int ivt_recvAlarmData(ivtRPCAlarmNotify *alarm, int fd)
 			sscanf(ptr, "channelno=%1d", &alarm->channel);
 		else
 			goto ERR_END;
-		
+
 		if(alarm->channel>=IVT_CHANNEL_NUM)
 			goto ERR_END;
 	}
@@ -1483,6 +1648,7 @@ int ivt_recvAlarmData(ivtRPCAlarmNotify *alarm, int fd)
 		Json::Reader reader;
 		Json::Value value;
 		Json::Value item;
+		Json::Value subItem;
 		string strTemp;
 		int size;
 		bool bRet = false;
@@ -1543,7 +1709,39 @@ int ivt_recvAlarmData(ivtRPCAlarmNotify *alarm, int fd)
 				memcpy(alarm->motionState, strTemp.c_str(), size);
 			}
 		}
-/*
+
+		bRet = item.isMember("cross");
+		if(false==bRet)
+		{
+			memset(alarm->rectState, '0', IVT_CHANNEL_NUM);
+		}
+		else
+		{
+		    subItem = item["cross"];
+
+			bRet = subItem.isMember("state");
+			if(false==bRet)
+			{
+				memset(alarm->rectState, '0', IVT_CHANNEL_NUM);
+			}
+			else
+			{
+				strTemp = subItem["state"].asString();
+
+				size = strTemp.length();
+				if(size>=IVT_CHANNEL_NUM)
+				{
+					memcpy(alarm->rectState, strTemp.c_str(), IVT_CHANNEL_NUM);
+				}
+				else
+				{
+					memset(alarm->rectState, '0', IVT_CHANNEL_NUM);
+					memcpy(alarm->rectState, strTemp.c_str(), size);
+				}
+			}
+		}
+
+        /*
 		bRet = item.isMember("loss");
 		if(false==bRet)
 		{
@@ -1615,7 +1813,8 @@ ERR_END:
 //-------------------------------------------------------------------------------
 ivcCallBack ivcReqCb[IVC_ELSE_METHOD] = {ivc_rtmpPublishCb, ivc_rtmpStopPublishCb, ivc_rebootChannelCb,
 	                                        ivc_getPtzPresetListCb, ivc_getPtzPresetTourListCb,
-	                                                ivc_startCRCb, ivc_stopCRCb, ivc_alarmMDCfgCb};
+	                                                ivc_startCRCb, ivc_stopCRCb, ivc_alarmMDCfgCb,
+	                                                ivc_alarmRectDCfgCb};
 ivtCallBack ivtEventCb[IVT_ELSE_EVENT] = {NULL};
 ivtCallBack ivcEventCb[IVC_ELSE_EVENT] = {ivc_ctrPtzCb, ivc_gotoPtzPresetCb, ivc_ctrlPtzPresetTourCb,
 	                                              ivc_ctrlPtzPatrolCb, ivc_syncTimeCb};

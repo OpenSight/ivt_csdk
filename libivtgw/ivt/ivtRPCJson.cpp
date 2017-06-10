@@ -15,9 +15,9 @@ ivtRPCJson::~ivtRPCJson()
 const char * ivtRPCJson::m_RPCType[ ] = {"req", "event", "resp", "err"};
 const char * ivtRPCJson::m_ivt_methodType[ ] = {"preview_server", "GetFirmware", "Keepalive", "AlarmNotify"};
 const char * ivtRPCJson::m_ivc_methodType[ ] = {"RTMPPublish", "RTMPStopPublish", "RebootChannel",
-	                                              "GetPTZPresetList", "GetPTZPresetTourList",
-	                                                "StartCloudRecord", "StopCloudRecord",
-	                                                   "AlarmMoveDetectConfig"};
+	                                            "GetPTZPresetList", "GetPTZPresetTourList",
+	                                            "StartCloudRecord", "StopCloudRecord",
+	                                            "AlarmMoveDetectConfig", "AlarmRectIntrusionDetectConfig"};
 
 const char * ivtRPCJson::m_ivt_eventType[ ]  = {"UNKNOWN_EVENT"};
 const char * ivtRPCJson::m_ivc_eventType[ ] = {"CtrlPTZ", "GotoPTZPreset", "CtrlPTZPresetTour",
@@ -489,6 +489,148 @@ int ivtRPCJson::readIVCReqParamsAlarmMDC(ivtRPCMDC *mdc, Json::Value *paraObj)
 	return 0;
 }
 
+int ivtRPCJson::readIVCReqParamsAlarmRectDC(ivtRPCRectDC *rectDC, Json::Value *paraObj)
+{
+    bool bRet = false;
+	bool enc;
+	Json::Value rectObj;
+		
+	//int i,temp;
+
+	bRet = paraObj->isMember("channel");
+	if(false==bRet)
+	{
+		IVT_ERR("channel is not exist.\n");
+		return -1;
+	}
+	rectDC->channel= (*paraObj)["channel"].asInt();
+
+	bRet = paraObj->isMember("enable");
+	if(false==bRet)
+	{
+		IVT_ERR("enable is not exist.\n");
+		return -1;
+	}
+	enc = (*paraObj)["enable"].asBool();
+    rectDC->enable = (int)enc;
+	
+	bRet = paraObj->isMember("start");
+	if(false==bRet)
+	{
+		rectDC->start = 0;
+	}
+	else
+		rectDC->start= (*paraObj)["start"].asInt();
+
+	bRet = paraObj->isMember("end");
+	if(false==bRet)
+	{
+		rectDC->end = 86400;
+	}
+	else
+		rectDC->end= (*paraObj)["end"].asInt();
+
+	if(rectDC->end>86400)
+		rectDC->end = 86400;
+
+	rectDC->start1 = -1;
+	if(rectDC->end < rectDC->start)
+	{
+		rectDC->end1 = rectDC->end;
+		rectDC->end = 86400;	
+		rectDC->start1 = 0; 
+		//IVT_ERR("end <= start.\n");
+		//return -1;
+	}
+	
+	bRet = paraObj->isMember("sensitivity");
+	if(false==bRet)
+	{
+		IVT_ERR("sensitivity is not exist.\n");
+		return -1;
+	}
+	rectDC->sensitivity= (*paraObj)["sensitivity"].asInt();
+
+	bRet = paraObj->isMember("delay");
+	if(false==bRet)
+	{
+		IVT_ERR("delay is not exist.\n");
+		return -1;
+	}
+	rectDC->delay= (*paraObj)["delay"].asInt();
+
+    bRet = paraObj->isMember("rect");
+	if(true==bRet)
+	{
+		rectObj = (*paraObj)["rect"];
+		bRet = rectObj.isMember("ulx");
+		if(false==bRet)
+		{
+			IVT_ERR("ulx is not exist.\n");
+			return -1;
+		}
+		rectDC->ulx= rectObj["ulx"].asInt();	
+
+		bRet = rectObj.isMember("uly");
+		if(false==bRet)
+		{
+			IVT_ERR("uly is not exist.\n");
+			return -1;
+		}
+		rectDC->uly= rectObj["uly"].asInt();	
+
+		bRet = rectObj.isMember("urx");
+		if(false==bRet)
+		{
+			IVT_ERR("urx is not exist.\n");
+			return -1;
+		}
+		rectDC->urx= rectObj["urx"].asInt();
+
+		bRet = rectObj.isMember("ury");
+		if(false==bRet)
+		{
+			IVT_ERR("ury is not exist.\n");
+			return -1;
+		}
+		rectDC->ury= rectObj["ury"].asInt();	
+
+        bRet = rectObj.isMember("dlx");
+		if(false==bRet)
+		{
+			IVT_ERR("dlx is not exist.\n");
+			return -1;
+		}
+		rectDC->dlx= rectObj["dlx"].asInt();	
+
+		bRet = rectObj.isMember("dly");
+		if(false==bRet)
+		{
+			IVT_ERR("dly is not exist.\n");
+			return -1;
+		}
+		rectDC->dly= rectObj["dly"].asInt();	
+
+		bRet = rectObj.isMember("drx");
+		if(false==bRet)
+		{
+			IVT_ERR("drx is not exist.\n");
+			return -1;
+		}
+		rectDC->drx= rectObj["drx"].asInt();	
+
+		bRet = rectObj.isMember("dry");
+		if(false==bRet)
+		{
+			IVT_ERR("dry is not exist.\n");
+			return -1;
+		}
+		rectDC->dry= rectObj["dry"].asInt();		
+	}
+	
+	return 0;
+}
+
 int ivtRPCJson::readIVCReqParams(ivtRPCStruct *pStructData, Json::Value *paraObj)
 {
     bool bRet = false;
@@ -644,6 +786,16 @@ int ivtRPCJson::readIVCReqParams(ivtRPCStruct *pStructData, Json::Value *paraObj
 			ivtRPCMDC *mdc;
 			mdc = (ivtRPCMDC *)(pStructData->params);
 			if(readIVCReqParamsAlarmMDC(mdc, paraObj)<0)
+			{
+				return -1;
+			}
+		}
+		break;
+		case IVC_ALARMRECTDETECTCONFIG:
+		{
+            ivtRPCRectDC *rectDC;
+			rectDC = (ivtRPCRectDC *)(pStructData->params);
+			if(readIVCReqParamsAlarmRectDC(rectDC, paraObj)<0)
 			{
 				return -1;
 			}
@@ -841,7 +993,7 @@ int ivtRPCJson::writeIVTReqParams(ivtRPCStruct *pStructData, Json::Value *paraOb
 			{
 				for(i=0;i<liveEvent->chnlNum;i++)
 				{
-					int temp0, temp1;
+					int temp0, temp1, temp2;
 				    item.clear();
 					item["state"] = liveEvent->chnlState[i];
 					item["channel"] = liveEvent->chnlID[i];
@@ -849,7 +1001,9 @@ int ivtRPCJson::writeIVTReqParams(ivtRPCStruct *pStructData, Json::Value *paraOb
                                   				   
 				    temp0 = '1'==liveEvent->motionState[i] ? 4:0;//100
 					temp1 = '1'==liveEvent->outAlarmState[i] ? 2:0;//10
-					item["alarm"] = temp0|temp1;
+					temp2 = '1'==liveEvent->rectState[i] ? 8:0;//10
+					
+					item["alarm"] = temp0|temp1|temp2;
 					
 					arrayObj.append(item);					
 				}

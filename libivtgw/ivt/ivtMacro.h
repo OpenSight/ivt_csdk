@@ -11,7 +11,7 @@
 	#define IVT_DEBUG(fmt,args...)    //fprintf(stderr, "[%s - %s - %d]"fmt, __FILE__, __FUNCTION__, __LINE__, ##args)
 #endif
 
-#define HTTP_URL "127.0.0.1" //172.16.0.251
+#define HTTP_URL "127.0.0.1"//"127.0.0.1" //172.16.3.113
 #define HTTP_PORT 80
 #define HTTP_RECV_TIMEOUT  15
 
@@ -84,6 +84,7 @@ typedef enum
 	IVC_STARTCLOUDRECORD,
 	IVC_STOPCLOUDRECORD,
 	IVC_ALARMMOVEDETECTCONFIG,
+	IVC_ALARMRECTDETECTCONFIG,
 	IVC_ELSE_METHOD
 }IVC_METHOD_TYPE;
 
@@ -149,8 +150,9 @@ typedef enum
     IVT_ALARM_LOSS = 1,
 	IVT_ALARM_OUTSIDE = 2,
 	IVT_ALARM_MD = 3, //motion detection
-	IVT_ALARM_BLIND = 4,
-	IVT_ALARM_HEARTBEAT = 5,
+	IVT_ALARM_RECT = 4, //AlarmRectIntrusionDetectConfig
+	IVT_ALARM_BLIND = 5,
+	IVT_ALARM_HEARTBEAT = 25,
 	IVT_ALARM_UNKNOWN
 }IVT_ALARM_TYPE;
 

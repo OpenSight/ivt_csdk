@@ -435,6 +435,7 @@ int ivtRPCWebSocketSend::startIvtRPCWebSocketSend(wsContext_t *ctx,
 
 	memset(m_outAlarmState, '0', IVT_CHANNEL_NUM);
 	memset(m_motionState, '0', IVT_CHANNEL_NUM);
+	memset(m_rectState, '0', IVT_CHANNEL_NUM);
 	
 	m_wsBuf = (char *)memalign(16, WS_BUF_SIZE_IVT_REQ);
 	if(NULL == m_wsBuf)
@@ -573,7 +574,8 @@ int ivtRPCWebSocketSend::commandChoose()
 				if(IVT_ALARM_HEARTBEAT==alarmNofity->type)
 				{//copy states
 					memcpy(m_outAlarmState, alarmNofity->outAlarmState, IVT_CHANNEL_NUM);
-					memcpy(m_motionState, alarmNofity->motionState, IVT_CHANNEL_NUM);
+					memcpy(m_motionState, alarmNofity->motionState, IVT_CHANNEL_NUM);					
+					memcpy(m_rectState, alarmNofity->rectState, IVT_CHANNEL_NUM);
 					m_cmdStruct = NULL;
 				}
 				else
@@ -585,6 +587,10 @@ int ivtRPCWebSocketSend::commandChoose()
 					else if(IVT_ALARM_OUTSIDE==alarmNofity->type)
 					{
 						m_outAlarmState[alarmNofity->channel] = alarmNofity->state ? '0':'1';
+					}
+					else if(IVT_ALARM_RECT==alarmNofity->type)
+					{
+						m_rectState[alarmNofity->channel] = alarmNofity->state ? '0':'1';
 					}
 					m_cmdStruct->seq = m_reqSeq;
 					break;
@@ -655,7 +661,7 @@ void ivtRPCWebSocketSend::producerTreadEntry()
                     
 					memcpy(keepAlive->motionState, m_motionState, IVT_CHANNEL_NUM);
 					memcpy(keepAlive->outAlarmState, m_outAlarmState, IVT_CHANNEL_NUM);
-                    
+					memcpy(keepAlive->rectState, m_rectState, IVT_CHANNEL_NUM);
 					// In json format, keepAlive event must have a chnnl
 					//if(!keepAlive->chnlNum)
 					//	continue;
@@ -1174,7 +1180,8 @@ void ivtAlarmRecver::producerTreadEntry()
 			retVal = ivt_recvAlarmData(alarm, m_fd);
 		    if(!retVal)
 		    {
-		        if(IVT_ALARM_MD==alarm->type || IVT_ALARM_HEARTBEAT==alarm->type)
+		        if(IVT_ALARM_MD == alarm->type || 
+					IVT_ALARM_RECT == alarm->type || IVT_ALARM_HEARTBEAT==alarm->type)
 		        {
 					IVT_DEBUG("**********ALARM MD***********\n");
 

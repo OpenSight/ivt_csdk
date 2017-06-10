@@ -95,6 +95,7 @@ class ivtRPCWebSocketSend:public ivt_producerConsumerBase
 
 		char m_outAlarmState[IVT_CHANNEL_NUM];
 	    char m_motionState[IVT_CHANNEL_NUM];
+		char m_rectState[IVT_CHANNEL_NUM];
 };
 
 //-------------------------------------------------------------
