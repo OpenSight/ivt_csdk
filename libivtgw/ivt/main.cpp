@@ -49,15 +49,15 @@ static void daemonize(void)
                 break; //child terminated abnormal
             }
         }
-        
+
         //send reboot signal to sofia
         while(1){
             reboot();
             sleep(600); //wait for reboot
         }
-        
+
     }//child_pid = fork();
-    
+
     //never get here
 }
 
@@ -72,8 +72,8 @@ int main(int argc, char **argv)
     int i;
 	char ivtMode[FM_STRING_LEN];
 #if(DEBUG_IVT)
-	char wsUrl[513]= "ws://172.16.35.15:5000/ivc?login_code=ydq&login_passwd=123456"\
-		"&project=rpc&hardware_model=00001&firmware_model=aaaa";
+	char wsUrl[513]= "ws://116.62.180.77:25000/ivc?login_code=debugger&login_passwd=debugger"\
+		"&project=demo&hardware_model=IPC-2829B&firmware_model=2.13.11.2.R5302.";
 #else
     char wsUrl[513];
     char code[64];

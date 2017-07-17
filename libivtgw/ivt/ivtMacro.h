@@ -3,7 +3,7 @@
 #define _IVTMACRO_
 
 #define IVT_ERR(fmt,args...)    fprintf(stderr, "[%s - %s - %d]"fmt, __FILE__, __FUNCTION__, __LINE__, ##args)
-#define DEBUG_IVT 0
+//#define DEBUG_IVT 0
 
 #if(DEBUG_IVT)
 	#define IVT_DEBUG(fmt,args...)    fprintf(stderr, "[%s - %s - %d]"fmt, __FILE__, __FUNCTION__, __LINE__, ##args)

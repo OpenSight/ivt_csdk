@@ -57,7 +57,7 @@ int create_http_client(const char *host, int port, int *fd, int timeOut)
 
     /*  Now connect our socket to the server's socket.  */
     if(connect(new_fd, (struct sockaddr *)&address, len) < 0){
-		IVT_ERR("connect err\n");		
+		IVT_ERR("connect err %s:%d\n", host, port);
         perror("connect:");
         goto error;
     }
