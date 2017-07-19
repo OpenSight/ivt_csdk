@@ -11,6 +11,7 @@
 #include "ivtCb.h"
 using namespace std;
 
+char http_host[HTTP_HOST_LEN];
 int http_port;
 char ivtFirmware[FM_STRING_LEN];
 int keepErrCnt;
@@ -20,7 +21,7 @@ int reboot(void)
 	int fd=-1;
 	char JsonData[512];
 
-	if(create_http_client(HTTP_URL, http_port, &fd, HTTP_RECV_TIMEOUT-5)<0)
+	if(create_http_client(http_host, http_port, &fd, HTTP_RECV_TIMEOUT-5)<0)
 	{
 		IVT_ERR("create_http_client err!\n");
 		goto ERR_END;
@@ -53,7 +54,7 @@ int getAlarmPort(void)
 	Json::Reader reader;
 	Json::Value value;
 
-	if(create_http_client(HTTP_URL, http_port, &fd, HTTP_RECV_TIMEOUT)<0)
+	if(create_http_client(http_host, http_port, &fd, HTTP_RECV_TIMEOUT)<0)
 	{
 		IVT_ERR("create_http_client err!\n");
 		goto ERR_END;
@@ -107,7 +108,7 @@ int getUrl(char *code, char *pw, char *ip, int *port, int *enable, int *snap, in
 	if(!code || !pw ||!ip)
         return -1;
 
-	if(create_http_client(HTTP_URL, http_port, &fd, HTTP_RECV_TIMEOUT)<0)
+	if(create_http_client(http_host, http_port, &fd, HTTP_RECV_TIMEOUT)<0)
 	{
 		IVT_ERR("create_http_client err!\n");
 		goto ERR_END;
@@ -216,7 +217,7 @@ int getFirmAndMode(char *firmware, char *mode, int len)
 	if(!firmware || !mode)
         return -1;
 
-	if(create_http_client(HTTP_URL, http_port, &fd, HTTP_RECV_TIMEOUT)<0)
+	if(create_http_client(http_host, http_port, &fd, HTTP_RECV_TIMEOUT)<0)
 	{
 		IVT_ERR("create_http_client err!\n");
 		goto ERR_END;
@@ -275,7 +276,7 @@ int ivc_rtmpPublishCb(ivtRPCStruct *para,  ivtRPCStruct *paraOut)
 	root["max_bitrate"] = rtmp->max_bitrate;
 
 	jWriter.write(root);
-	if(create_http_client(HTTP_URL, http_port, &fd, HTTP_RECV_TIMEOUT+10)<0)
+	if(create_http_client(http_host, http_port, &fd, HTTP_RECV_TIMEOUT+10)<0)
 	{
 		IVT_ERR("create_http_client err!\n");
 		goto ERR_END;
@@ -319,7 +320,7 @@ int ivc_rtmpStopPublishAll()
 	root["channel"] = 0;
 	root["stream_Id"] = "NULL";
 	jWriter.write(root);
-	if(create_http_client(HTTP_URL, http_port, &fd, HTTP_RECV_TIMEOUT)<0)
+	if(create_http_client(http_host, http_port, &fd, HTTP_RECV_TIMEOUT)<0)
 	{
 		IVT_ERR("create_http_client err!\n");
 		goto ERR_END;
@@ -358,7 +359,7 @@ int ivc_rtmpStopPublishCb(ivtRPCStruct *para,  ivtRPCStruct *paraOut)
 	root["channel"] = rtmp->channel;
 	root["stream_Id"] = rtmp->streamID;
 	jWriter.write(root);
-	if(create_http_client(HTTP_URL, http_port, &fd, HTTP_RECV_TIMEOUT)<0)
+	if(create_http_client(http_host, http_port, &fd, HTTP_RECV_TIMEOUT)<0)
 	{
 		IVT_ERR("create_http_client err!\n");
 		goto ERR_END;
@@ -404,7 +405,7 @@ int ivc_getPtzPresetTourListCb(ivtRPCStruct *para,  ivtRPCStruct *paraOut)
 	ivtRPCPTZPreListR *ptzR = (ivtRPCPTZPreListR *)(paraOut->params);
 	ivtRPCErr *err = (ivtRPCErr *)paraOut->params;
 
-	if(create_http_client(HTTP_URL, http_port, &fd, HTTP_RECV_TIMEOUT)<0)
+	if(create_http_client(http_host, http_port, &fd, HTTP_RECV_TIMEOUT)<0)
 	{
 		IVT_ERR("create_http_client err!\n");
 		goto ERR_END;
@@ -482,7 +483,7 @@ int ivc_getPtzPresetListCb(ivtRPCStruct *para,  ivtRPCStruct *paraOut)
 	ivtRPCPTZPreListR *ptzR = (ivtRPCPTZPreListR *)(paraOut->params);
 	ivtRPCErr *err = (ivtRPCErr *)paraOut->params;
 
-	if(create_http_client(HTTP_URL, http_port, &fd, HTTP_RECV_TIMEOUT)<0)
+	if(create_http_client(http_host, http_port, &fd, HTTP_RECV_TIMEOUT)<0)
 	{
 		IVT_ERR("create_http_client err!\n");
 		goto ERR_END;
@@ -558,7 +559,7 @@ int ivc_rebootChannelCb(ivtRPCStruct *para,  ivtRPCStruct *paraOut)
 	//ivtRPCRebootChl *pBoot=(ivtRPCRebootChl *)(para->params);
 	ivtRPCErr *err = (ivtRPCErr *)paraOut->params;
 
-	if(create_http_client(HTTP_URL, http_port, &fd, HTTP_RECV_TIMEOUT)<0)
+	if(create_http_client(http_host, http_port, &fd, HTTP_RECV_TIMEOUT)<0)
 	{
 		IVT_ERR("create_http_client err!\n");
 		goto ERR_END;
@@ -615,7 +616,7 @@ int ivc_startCRCb(ivtRPCStruct *para,  ivtRPCStruct *paraOut)
 	root["max_bitrate"] = cr->max_bitrate;
 
 	jWriter.write(root);
-	if(create_http_client(HTTP_URL, http_port, &fd, HTTP_RECV_TIMEOUT)<0)
+	if(create_http_client(http_host, http_port, &fd, HTTP_RECV_TIMEOUT)<0)
 	{
 		IVT_ERR("create_http_client err!\n");
 		goto ERR_END;
@@ -661,7 +662,7 @@ int ivc_stopCRCb(ivtRPCStruct *para,  ivtRPCStruct *paraOut)
 	root["channel"] = cr->channel;
 	root["session_id"] = cr->recSession;
 	jWriter.write(root);
-	if(create_http_client(HTTP_URL, http_port, &fd, HTTP_RECV_TIMEOUT)<0)
+	if(create_http_client(http_host, http_port, &fd, HTTP_RECV_TIMEOUT)<0)
 	{
 		IVT_ERR("create_http_client err!\n");
 		goto ERR_END;
@@ -705,7 +706,7 @@ int ivc_stopCRCbAll()
 	root["channel"] = 0;
 	root["session_id"] = "NULL";
 	jWriter.write(root);
-	if(create_http_client(HTTP_URL, http_port, &fd, HTTP_RECV_TIMEOUT)<0)
+	if(create_http_client(http_host, http_port, &fd, HTTP_RECV_TIMEOUT)<0)
 	{
 		IVT_ERR("create_http_client err!\n");
 		goto ERR_END;
@@ -820,7 +821,7 @@ int ivc_alarmMDCfgCb(ivtRPCStruct *para,  ivtRPCStruct *paraOut)
 	root["AlarmCfg"] = arrayObj;
     jWriter.write(root);
 
-    if(create_http_client(HTTP_URL, http_port, &fd, HTTP_RECV_TIMEOUT)<0)
+    if(create_http_client(http_host, http_port, &fd, HTTP_RECV_TIMEOUT)<0)
 	{
 		IVT_ERR("create_http_client err!\n");
 		goto ERR_END;
@@ -982,7 +983,7 @@ int ivc_alarmRectDCfgCb(ivtRPCStruct *para,  ivtRPCStruct *paraOut)
 
     jWriter.write(root);
 
-    if(create_http_client(HTTP_URL, http_port, &fd, HTTP_RECV_TIMEOUT)<0)
+    if(create_http_client(http_host, http_port, &fd, HTTP_RECV_TIMEOUT)<0)
 	{
 		IVT_ERR("create_http_client err!\n");
 		goto ERR_END;
@@ -1015,6 +1016,99 @@ ERR_END:
     return -1;
 }
 
+
+int ivc_getNetconfigCb(ivtRPCStruct *para,  ivtRPCStruct *paraOut)
+{
+    Json::Reader reader;
+    Json::Value value;
+    Json::Value item;
+    Json::Value arrayObj;
+
+    int fd=-1, i;
+    char JsonData[512];
+
+    bool bRet = false;
+	ivtRPCGeneral *params = (ivtRPCGeneral *)(para->params);
+	ivtRPCNetConfigR *netConfigR = (ivtRPCNetConfigR *)(paraOut->params);
+    ivtRPCErr *err = (ivtRPCErr *)paraOut->params;
+
+    if(create_http_client(http_host, http_port, &fd, HTTP_RECV_TIMEOUT)<0)
+    {
+        IVT_ERR("create_http_client err!\n");
+        goto ERR_END;
+    }
+
+    sprintf(JsonData, "GetGeneralNetCfg.cgi?Ch=%d", params->channel);
+    IVT_DEBUG("JsonData %s\n", JsonData);
+    if(sendRequest(fd, NULL, JsonData, 0)<0)
+    {
+        IVT_ERR("create_http_client err!\n");
+        goto ERR_END;
+    }
+
+    if(getResponse(fd, JsonData, 512)<0)
+    {
+        IVT_ERR("getResponse err!\n");
+        goto ERR_END;
+    }
+    IVT_DEBUG("JsonData %s\n", JsonData);
+
+    paraOut->rpcType = RPC_RESP;
+    paraOut->subType = IVC_GETNETCONFIG;
+    paraOut->seq = para->seq;
+
+    bRet = reader.parse(JsonData, value);
+    if(false==bRet)
+    {
+        goto ERR_END;
+    }
+
+    bRet = value.isMember("NetCommon");
+    if(false==bRet)
+    {
+        netConfigR->net_count = 0;
+        goto R_END;
+    }
+
+    arrayObj = value["NetCommon"];
+    netConfigR->net_count = arrayObj.size();
+
+    if(netConfigR->net_count > IVT_NET_COUNT)
+        netConfigR->net_count = IVT_NET_COUNT;
+
+    for(i=0; i < netConfigR->net_count; i++)
+    {
+        item = arrayObj[i];
+        strncpy(netConfigR->net_config_list[i].name, item["EthName"].asString().c_str(), IVT_ETH_NAME_SIZE);
+        netConfigR->net_config_list[i].name[IVT_ETH_NAME_SIZE-1] = 0;
+        strncpy(netConfigR->net_config_list[i].ip, item["HostIP"].asString().c_str(), IVT_IPV4_SIZE);
+        netConfigR->net_config_list[i].ip[IVT_IPV4_SIZE-1] = 0;
+        strncpy(netConfigR->net_config_list[i].dns1, item["Dns1"].asString().c_str(), IVT_IPV4_SIZE);
+        netConfigR->net_config_list[i].dns1[IVT_IPV4_SIZE-1] = 0;
+        strncpy(netConfigR->net_config_list[i].dns2, item["Dns2"].asString().c_str(), IVT_IPV4_SIZE);
+        netConfigR->net_config_list[i].dns2[IVT_IPV4_SIZE-1] = 0;
+        strncpy(netConfigR->net_config_list[i].gateway, item["GateWay"].asString().c_str(), IVT_IPV4_SIZE);
+        netConfigR->net_config_list[i].gateway[IVT_IPV4_SIZE-1] = 0;
+        strncpy(netConfigR->net_config_list[i].netmask, item["SubMask"].asString().c_str(), IVT_IPV4_SIZE);
+        netConfigR->net_config_list[i].gateway[IVT_IPV4_SIZE-1] = 0;
+        strncpy(netConfigR->net_config_list[i].mac, item["MAC"].asString().c_str(), IVT_MAC_SIZE);
+        netConfigR->net_config_list[i].mac[IVT_MAC_SIZE-1] = 0;
+        netConfigR->net_config_list[i].dhcp = item["Dhcp"].asInt();
+    }
+
+    R_END:
+    close_http_client(fd);
+    return 0;
+    ERR_END:
+    paraOut->rpcType = RPC_ERR;
+    paraOut->subType = IVC_GETNETCONFIG;
+    paraOut->seq = para->seq;
+    err->errCode = 1;
+    strcpy(err->msg, "error");
+    close_http_client(fd);
+    return -1;
+}
+
 //--------------------------------ivc event-----------------------------------------------------
 int ivc_ctrPtzCb(ivtRPCStruct *para)
 {
@@ -1023,7 +1117,7 @@ int ivc_ctrPtzCb(ivtRPCStruct *para)
     int speed;
 	ivtRPCPtzCtrl *ptz=(ivtRPCPtzCtrl *)(para->params);
 
-	if(create_http_client(HTTP_URL, http_port, &fd, HTTP_RECV_TIMEOUT)<0)
+	if(create_http_client(http_host, http_port, &fd, HTTP_RECV_TIMEOUT)<0)
 	{
 		IVT_ERR("create_http_client err!\n");
 		goto ERR_END;
@@ -1064,7 +1158,7 @@ int ivc_gotoPtzPresetCb(ivtRPCStruct *para)
 	int token;
 	ivtRPCGotoPTZPreset *ptz=(ivtRPCGotoPTZPreset *)(para->params);
 
-	if(create_http_client(HTTP_URL, http_port, &fd, HTTP_RECV_TIMEOUT)<0)
+	if(create_http_client(http_host, http_port, &fd, HTTP_RECV_TIMEOUT)<0)
 	{
 		IVT_ERR("create_http_client err!\n");
 		goto ERR_END;
@@ -1105,7 +1199,7 @@ int ivc_ctrlPtzPresetTourCb(ivtRPCStruct *para)
 	int token, opType;
 	ivtRPCCtrlPTZPresetTour *ptz=(ivtRPCCtrlPTZPresetTour *)(para->params);
 
-	if(create_http_client(HTTP_URL, http_port, &fd, HTTP_RECV_TIMEOUT)<0)
+	if(create_http_client(http_host, http_port, &fd, HTTP_RECV_TIMEOUT)<0)
 	{
 		IVT_ERR("create_http_client err!\n");
 		goto ERR_END;
@@ -1146,7 +1240,7 @@ int ivc_ctrlPtzPatrolCb(ivtRPCStruct *para)
 	int /*token,*/ opType;
 	ivtRPCCtrlPTZPatrol *ptz=(ivtRPCCtrlPTZPatrol *)(para->params);
 
-	if(create_http_client(HTTP_URL, http_port, &fd, HTTP_RECV_TIMEOUT)<0)
+	if(create_http_client(http_host, http_port, &fd, HTTP_RECV_TIMEOUT)<0)
 	{
 		IVT_ERR("create_http_client err!\n");
 		goto ERR_END;
@@ -1190,7 +1284,7 @@ int ivc_syncTimeCb(ivtRPCStruct *para)
 
 	ivtRPCSyncTime *synTime=(ivtRPCSyncTime *)(para->params);
 
-	if(create_http_client(HTTP_URL, http_port, &fd, HTTP_RECV_TIMEOUT)<0)
+	if(create_http_client(http_host, http_port, &fd, HTTP_RECV_TIMEOUT)<0)
 	{
 		IVT_ERR("create_http_client err!\n");
 		goto ERR_END;
@@ -1285,7 +1379,7 @@ int ivc_syncTimeCb(ivtRPCStruct *para)
 		string strOut;
 		Json::FastWriter jWriter(strOut);
 
-		if(create_http_client(HTTP_URL, http_port, &fd, HTTP_RECV_TIMEOUT)<0)
+		if(create_http_client(http_host, http_port, &fd, HTTP_RECV_TIMEOUT)<0)
 		{
 			IVT_ERR("create_http_client err!\n");
 			goto ERR_END;
@@ -1336,7 +1430,7 @@ int ivt_alarmNotifyCb(ivtRPCStruct *para)
 	Json::FastWriter jWriter(strOut);
 	ivcRPCAlarmRes *res=(ivcRPCAlarmRes *)(para->params);
 
-	if(create_http_client(HTTP_URL, http_port, &fd, HTTP_RECV_TIMEOUT)<0)
+	if(create_http_client(http_host, http_port, &fd, HTTP_RECV_TIMEOUT)<0)
 	{
 		IVT_ERR("create_http_client err!\n");
 		goto ERR_END;
@@ -1374,7 +1468,7 @@ int ivt_previewServerCb(ivtRPCStruct *para)
 	Json::FastWriter jWriter(strOut);
 	ivcRPCPreviewRes *res=(ivcRPCPreviewRes *)(para->params);
 
-	if(create_http_client(HTTP_URL, http_port, &fd, HTTP_RECV_TIMEOUT)<0)
+	if(create_http_client(http_host, http_port, &fd, HTTP_RECV_TIMEOUT)<0)
 	{
 		IVT_ERR("create_http_client err!\n");
 		goto ERR_END;
@@ -1417,7 +1511,7 @@ int ivt_getFirmwareCb(ivtRPCStruct *para)
 	if((!res->forceToUpd) && (!strcmp(res->version, ivtFirmware)))
 		return 0;
 
-	if(create_http_client(HTTP_URL, http_port, &fd, HTTP_RECV_TIMEOUT)<0)
+	if(create_http_client(http_host, http_port, &fd, HTTP_RECV_TIMEOUT)<0)
 	{
 		IVT_ERR("create_http_client err!\n");
 		goto ERR_END;
@@ -1459,7 +1553,7 @@ int ivt_keepAliveCb(ivtRPCStruct *para)
 	bool bRet = false;
 	ivtRPCKeepAlive *keepAlive=(ivtRPCKeepAlive *)(para->params);
 
-	if(create_http_client(HTTP_URL, http_port, &fd, HTTP_RECV_TIMEOUT-5)<0)
+	if(create_http_client(http_host, http_port, &fd, HTTP_RECV_TIMEOUT-5)<0)
 	{
 		IVT_ERR("create_http_client err!\n");
 		goto ERR_END_REBOOT;
@@ -1513,7 +1607,7 @@ int ivt_keepAliveCb(ivtRPCStruct *para)
 	close_http_client(fd);
     fd = -1;
 
-	if(create_http_client(HTTP_URL, http_port, &fd, HTTP_RECV_TIMEOUT-5)<0)
+	if(create_http_client(http_host, http_port, &fd, HTTP_RECV_TIMEOUT-5)<0)
 	{
 		IVT_ERR("create_http_client err!\n");
 		goto ERR_END_REBOOT;
@@ -1814,7 +1908,7 @@ ERR_END:
 ivcCallBack ivcReqCb[IVC_ELSE_METHOD] = {ivc_rtmpPublishCb, ivc_rtmpStopPublishCb, ivc_rebootChannelCb,
 	                                        ivc_getPtzPresetListCb, ivc_getPtzPresetTourListCb,
 	                                                ivc_startCRCb, ivc_stopCRCb, ivc_alarmMDCfgCb,
-	                                                ivc_alarmRectDCfgCb};
+	                                                ivc_alarmRectDCfgCb, ivc_getNetconfigCb};
 ivtCallBack ivtEventCb[IVT_ELSE_EVENT] = {NULL};
 ivtCallBack ivcEventCb[IVC_ELSE_EVENT] = {ivc_ctrPtzCb, ivc_gotoPtzPresetCb, ivc_ctrlPtzPresetTourCb,
 	                                              ivc_ctrlPtzPatrolCb, ivc_syncTimeCb};

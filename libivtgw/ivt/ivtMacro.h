@@ -11,7 +11,6 @@
 	#define IVT_DEBUG(fmt,args...)    //fprintf(stderr, "[%s - %s - %d]"fmt, __FILE__, __FUNCTION__, __LINE__, ##args)
 #endif
 
-#define HTTP_URL "127.0.0.1"//"127.0.0.1" //172.16.3.113
 #define HTTP_PORT 80
 #define HTTP_RECV_TIMEOUT  15
 
@@ -26,6 +25,10 @@
 #define IVT_STR_ID_SIZE 128
 #define IVT_MSG_SIZE 128
 #define IVT_TOKEN_NUM 128
+#define IVT_NET_COUNT 5
+#define IVT_ETH_NAME_SIZE 8
+#define IVT_IPV4_SIZE 16
+#define IVT_MAC_SIZE 18
 #define SNAP_PIC_TIME 800  //800
 #define FIRMWARE_HOUR 3
 #define ELEMENT_SIZE 5
@@ -85,6 +88,7 @@ typedef enum
 	IVC_STOPCLOUDRECORD,
 	IVC_ALARMMOVEDETECTCONFIG,
 	IVC_ALARMRECTDETECTCONFIG,
+	IVC_GETNETCONFIG,
 	IVC_ELSE_METHOD
 }IVC_METHOD_TYPE;
 

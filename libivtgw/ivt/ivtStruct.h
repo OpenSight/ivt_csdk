@@ -50,6 +50,11 @@ typedef struct
 
 typedef struct
 {
+	int channel;
+}ivtRPCGeneral;
+
+typedef struct
+{
 	char recSession[IVT_RCD_ID_SIZE];
 	int channel;
 	int qaulity;
@@ -99,6 +104,24 @@ typedef struct
 	int drx;
 	int dry;
 }ivtRPCRectDC;
+
+typedef struct
+{
+	char name[IVT_ETH_NAME_SIZE];
+	char ip[IVT_IPV4_SIZE];
+	char gateway[IVT_IPV4_SIZE];
+    char netmask[IVT_IPV4_SIZE];
+	char dns1[IVT_IPV4_SIZE];
+	char dns2[IVT_IPV4_SIZE];
+    char mac[IVT_MAC_SIZE];
+	int dhcp;
+}ivtNetConfig;
+
+typedef struct
+{
+	int net_count;
+	ivtNetConfig net_config_list[IVT_NET_COUNT];
+}ivtRPCNetConfigR;
 
 //----------------------------ivt ptz event------------------------------------
 typedef struct

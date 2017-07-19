@@ -71,8 +71,11 @@ int main(int argc, char **argv)
 {
     int i;
 	char ivtMode[FM_STRING_LEN];
+
 #if(DEBUG_IVT)
-	char wsUrl[513]= "ws://116.62.180.77:25000/ivc?login_code=debugger&login_passwd=debugger"\
+	//char wsUrl[513]= "ws://116.62.180.77:25000/ivc?login_code=debugger&login_passwd=debugger"\
+		"&project=demo&hardware_model=IPC-2829B&firmware_model=2.13.11.2.R5302.";
+    char wsUrl[513]= "ws://116.62.180.77:9999/ivc?login_code=debugger&login_passwd=debugger"\
 		"&project=demo&hardware_model=IPC-2829B&firmware_model=2.13.11.2.R5302.";
 #else
     char wsUrl[513];
@@ -83,6 +86,7 @@ int main(int argc, char **argv)
 	int enable;
 #endif
 	snap = 1;
+    memset(http_host, 0, HTTP_HOST_LEN);
     http_port = 0;
 	alarmPort = 9000;
 	ivtRPCWebSocket *rpc = new  ivtRPCWebSocket;
@@ -96,7 +100,13 @@ int main(int argc, char **argv)
     firmwareSec = rand()%(10*60);
     while(argc > 1)
 	{
-		if (strcmp("-httpPort", argv[1]) == 0 && 2 < argc)
+        if (strcmp("-httpHost", argv[1]) == 0 && 2 < argc)
+        {
+            strncpy(http_host, argv[2], HTTP_HOST_LEN);
+            http_host[HTTP_HOST_LEN-1] = 0;
+            ++argv; --argc;
+        }
+		else if (strcmp("-httpPort", argv[1]) == 0 && 2 < argc)
 		{
 			http_port = atoi(argv[2]);
             ++argv; --argc; 
@@ -111,14 +121,19 @@ int main(int argc, char **argv)
 			sleep_max_ms = atoi(argv[2]);
             ++argv; --argc;
 		}        
-        else if(strcmp("-auto-reboot", argv[1]) == 0){
+        else if(strcmp("-auto-reboot", argv[1]) == 0)
+        {
             auto_reboot = 1;
         }
-		else if(strcmp("-h", argv[1]) == 0){
-            IVT_ERR("ivt [-httpPort (sofia_http_port)] [-t (timeOut Second)] [-auto-reboot] [-s max_start_sleep_time(ms)]\n");
+		else if(strcmp("-h", argv[1]) == 0)
+        {
+            IVT_ERR("ivt [-httpHost (sofia_http_host)] [-httpPort (sofia_http_port)] [-t (timeOut Second)] [-auto-reboot] [-s max_start_sleep_time(ms)]\n");
             exit(-1);
-        }else{
-            IVT_ERR("ivt [-httpPort (sofia_http_port)] [-t (timeOut Second)] [-auto-reboot] [-s max_start_sleep_time(ms)]\n");
+        }
+        else
+        {
+            IVT_ERR("Unknown arg %s\n", argv[1]);
+            IVT_ERR("ivt [-httpHost (sofia_http_host)] [-httpPort (sofia_http_port)] [-t (timeOut Second)] [-auto-reboot] [-s max_start_sleep_time(ms)]\n");
             exit(-1);            
         }
             
@@ -148,9 +163,15 @@ int main(int argc, char **argv)
 	}
 #endif
 
+    if (http_host[0] == 0)
+    {
+        IVT_ERR("http_host err: %s set default\n", "127.0.0.1");
+        strcpy(http_host, "127.0.0.1");
+    }
+
     if (http_port <=0 || http_port >= 65536)
     {
-		IVT_ERR("http_port err:%d set default\n", 80);
+		IVT_ERR("http_port err: %d set default\n", 80);
         http_port = 80;
     }
     

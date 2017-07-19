@@ -1,6 +1,7 @@
 #include <string.h>
 #include "ivtRPCJson.h"
 #include "ivtMacro.h"
+#include "ivtStruct.h"
 
 ivtRPCJson::ivtRPCJson()
 {
@@ -17,7 +18,8 @@ const char * ivtRPCJson::m_ivt_methodType[ ] = {"preview_server", "GetFirmware",
 const char * ivtRPCJson::m_ivc_methodType[ ] = {"RTMPPublish", "RTMPStopPublish", "RebootChannel",
 	                                            "GetPTZPresetList", "GetPTZPresetTourList",
 	                                            "StartCloudRecord", "StopCloudRecord",
-	                                            "AlarmMoveDetectConfig", "AlarmRectIntrusionDetectConfig"};
+	                                            "AlarmMoveDetectConfig", "AlarmRectIntrusionDetectConfig",
+												"GetNetConfig"};
 
 const char * ivtRPCJson::m_ivt_eventType[ ]  = {"UNKNOWN_EVENT"};
 const char * ivtRPCJson::m_ivc_eventType[ ] = {"CtrlPTZ", "GotoPTZPreset", "CtrlPTZPresetTour",
@@ -800,7 +802,6 @@ int ivtRPCJson::readIVCReqParams(ivtRPCStruct *pStructData, Json::Value *paraObj
 				return -1;
 			}
 		}
-		break;
 		case IVC_STOPCLOUDRECORD:
 		{
 			ivtRPCStopCR *cr;
@@ -824,6 +825,19 @@ int ivtRPCJson::readIVCReqParams(ivtRPCStruct *pStructData, Json::Value *paraObj
 				return -1;
 			}
 			cr->channel= (*paraObj)["channel"].asInt();
+		}
+		break;
+		case IVC_GETNETCONFIG:
+		{
+			ivtRPCGeneral *generalParams;
+			generalParams = (ivtRPCGeneral *)(pStructData->params);
+			bRet = paraObj->isMember("channel");
+			if(false==bRet)
+			{
+				IVT_ERR("channel is not exist.\n");
+				return -1;
+			}
+			generalParams->channel = (*paraObj)["channel"].asInt();
 		}
 		break;
 		default:
@@ -1093,6 +1107,30 @@ int ivtRPCJson::writeIVTResParams(ivtRPCStruct *pStructData, Json::Value *paraOb
 			}
 		}
 		break;
+        case IVC_GETNETCONFIG:
+        {
+            ivtRPCNetConfigR* config = (ivtRPCNetConfigR*)(pStructData->params);
+            if(config->net_count)
+            {
+                for (i=0; i < config->net_count; i++)
+                {
+                    item["name"] = config->net_config_list[i].name;
+                    item["ip"] = config->net_config_list[i].ip;
+                    item["dns1"] = config->net_config_list[i].dns1;
+                    item["dns2"] = config->net_config_list[i].dns2;
+                    item["gateway"] = config->net_config_list[i].gateway;
+                    item["netmask"] = config->net_config_list[i].netmask;
+                    item["dhcp"] = config->net_config_list[i].dhcp;
+                    item["mac"] = config->net_config_list[i].mac;
+                    (*paraObj).append(item);
+                }
+            }
+			else
+			{
+				(*paraObj).resize(0);
+			}
+        }
+        break;
 		default:
 			IVT_ERR("writeIVTResParams RPC_ELSE.\n");
 			return -1;

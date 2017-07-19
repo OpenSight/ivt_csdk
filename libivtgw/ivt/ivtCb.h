@@ -3,7 +3,9 @@
 #ifndef _IVTCB_
 #define _IVTCB_
 
+#define HTTP_HOST_LEN 64
 #define FM_STRING_LEN 32
+extern char http_host[HTTP_HOST_LEN];
 extern int http_port;
 extern char ivtFirmware[FM_STRING_LEN];
 extern ivcCallBack ivcReqCb[IVC_ELSE_METHOD];

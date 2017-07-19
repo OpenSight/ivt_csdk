@@ -1085,7 +1085,7 @@ int ivtAlarmRecver::startIvtAlarmRecver(int alarmPort)
 	}
 	memset(m_structData.params, 0, PARA_BUF_SIZE);
 	m_alarmPort = alarmPort;
-	if(create_http_client(HTTP_URL, alarmPort, &m_fd, HTTP_RECV_TIMEOUT)<0)
+	if(create_http_client(http_host, alarmPort, &m_fd, HTTP_RECV_TIMEOUT)<0)
 	{
 		stopIvtAlarmRecver();
 		return -1;
@@ -1163,7 +1163,7 @@ void ivtAlarmRecver::producerTreadEntry()
 		{
 			close_http_client(m_fd);
 			m_fd = -1;
-			if(create_http_client(HTTP_URL, m_alarmPort, &m_fd, HTTP_RECV_TIMEOUT))
+			if(create_http_client(http_host, m_alarmPort, &m_fd, HTTP_RECV_TIMEOUT))
 			{
 			    sleep(10);
 				continue;
