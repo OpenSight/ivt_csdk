@@ -1079,6 +1079,11 @@ int ivc_getNetconfigCb(ivtRPCStruct *para,  ivtRPCStruct *paraOut)
     for(i=0; i < netConfigR->net_count; i++)
     {
         item = arrayObj[i];
+        if (!item.isObject())
+        {
+            IVT_ERR("Not of object type, but %d\n", item.type());
+            goto ERR_END;
+        }
         strncpy(netConfigR->net_config_list[i].name, item["EthName"].asString().c_str(), IVT_ETH_NAME_SIZE);
         netConfigR->net_config_list[i].name[IVT_ETH_NAME_SIZE-1] = 0;
         strncpy(netConfigR->net_config_list[i].ip, item["HostIP"].asString().c_str(), IVT_IPV4_SIZE);
@@ -1093,7 +1098,10 @@ int ivc_getNetconfigCb(ivtRPCStruct *para,  ivtRPCStruct *paraOut)
         netConfigR->net_config_list[i].gateway[IVT_IPV4_SIZE-1] = 0;
         strncpy(netConfigR->net_config_list[i].mac, item["MAC"].asString().c_str(), IVT_MAC_SIZE);
         netConfigR->net_config_list[i].mac[IVT_MAC_SIZE-1] = 0;
-        netConfigR->net_config_list[i].dhcp = item["Dhcp"].asInt();
+        if (item["Dhcp"].asInt() == 0)
+            netConfigR->net_config_list[i].dhcp = false;
+        else
+            netConfigR->net_config_list[i].dhcp = true;
     }
 
     R_END:
@@ -1102,6 +1110,153 @@ int ivc_getNetconfigCb(ivtRPCStruct *para,  ivtRPCStruct *paraOut)
     ERR_END:
     paraOut->rpcType = RPC_ERR;
     paraOut->subType = IVC_GETNETCONFIG;
+    paraOut->seq = para->seq;
+    err->errCode = 1;
+    strcpy(err->msg, "error");
+    close_http_client(fd);
+    return -1;
+}
+
+int ivc_getRtmpPublishConfigCb(ivtRPCStruct *para,  ivtRPCStruct *paraOut)
+{
+    Json::Reader reader;
+    Json::Value value;
+    Json::Value item;
+    Json::Value arrayObj;
+
+    int fd=-1, i;
+    char JsonData[512];
+
+    bool bRet = false;
+    ivtRPCGetRtmpPulibshConfigR *ConfigR = (ivtRPCGetRtmpPulibshConfigR *)(paraOut->params);
+    ivtRPCErr *err = (ivtRPCErr *)paraOut->params;
+
+    if(create_http_client(http_host, http_port, &fd, HTTP_RECV_TIMEOUT)<0)
+    {
+        IVT_ERR("create_http_client err!\n");
+        goto ERR_END;
+    }
+
+    sprintf(JsonData, "GetXvrConfig2.cgi?name=RtmpPublish");
+    IVT_DEBUG("JsonData %s\n", JsonData);
+    if(sendRequest(fd, NULL, JsonData, 0)<0)
+    {
+        IVT_ERR("create_http_client err!\n");
+        goto ERR_END;
+    }
+
+    if(getResponse(fd, JsonData, 4096)<0)
+    {
+        IVT_ERR("getResponse err!\n");
+        goto ERR_END;
+    }
+    IVT_DEBUG("JsonData %s\n", JsonData);
+
+    paraOut->rpcType = RPC_RESP;
+    paraOut->subType = IVC_GETRTMPPUBLISHCONFIG;
+    paraOut->seq = para->seq;
+
+    bRet = reader.parse(JsonData, value);
+    if(false==bRet)
+    {
+        goto ERR_END;
+    }
+
+    bRet = value.isMember("RtmpPublish");
+    if(false==bRet)
+    {
+        ConfigR->config_count = 0;
+        goto R_END;
+    }
+
+    arrayObj = value["RtmpPublish"];
+    ConfigR->config_count = arrayObj.size();
+
+    if(ConfigR->config_count > IVT_RTMP_PUBLISH_CONFIG_COUNT)
+        ConfigR->config_count = IVT_RTMP_PUBLISH_CONFIG_COUNT;
+
+    for(i=0; i < ConfigR->config_count; i++)
+    {
+        item = arrayObj[i];
+        ConfigR->config_list[i].channel = item["Channel"].asInt();
+        ConfigR->config_list[i].quality = item["Stream"].asInt()>0?IVT_SD:IVT_HD;
+        if (item["Enable"].asInt() == 0)
+            ConfigR->config_list[i].enable = false;
+        else
+            ConfigR->config_list[i].enable = true;
+        strncpy(ConfigR->config_list[i].url, item["Url"].asString().c_str(), IVT_URL_SIZE);
+        ConfigR->config_list[i].url[IVT_URL_SIZE-1] = 0;
+    }
+
+    R_END:
+    close_http_client(fd);
+    return 0;
+    ERR_END:
+    paraOut->rpcType = RPC_ERR;
+    paraOut->subType = IVC_GETRTMPPUBLISHCONFIG;
+    paraOut->seq = para->seq;
+    err->errCode = 1;
+    strcpy(err->msg, "error");
+    close_http_client(fd);
+    return -1;
+}
+
+int ivc_setRtmpPublishConfigCb(ivtRPCStruct *para,  ivtRPCStruct *paraOut)
+{
+    Json::Value root;
+    Json::Value rtmpPublish;
+
+    string strOut;
+    Json::FastWriter jWriter(strOut);
+    Json::Value item;
+
+    int fd=-1, i;
+    char JsonData[512];
+
+    ivtRPCSetRtmpPulibshConfig *params = (ivtRPCSetRtmpPulibshConfig *)(para->params);
+    ivtRPCErr *err = (ivtRPCErr *)paraOut->params;
+
+    if(create_http_client(http_host, http_port, &fd, HTTP_RECV_TIMEOUT)<0)
+    {
+        IVT_ERR("create_http_client err!\n");
+        goto ERR_END;
+    }
+
+    for (i=0; i<params->config_count; i++)
+    {
+        item["Enable"] = params->config_list[i].enable?1:0;
+        item["Channel"] = params->config_list[i].channel;
+        item["Stream"] = params->config_list[i].quality<IVT_HD ? 1:0;
+        item["Url"] = params->config_list[i].url;
+        rtmpPublish.append(item);
+    }
+    root["RtmpPublish"] = rtmpPublish;
+    jWriter.write(root);
+
+    sprintf(JsonData, "SetXvrConfig2.cgi");
+    IVT_DEBUG("CMD %s, JsonData %s\n", JsonData, strOut.c_str());
+    if(sendRequest(fd, strOut.c_str(), JsonData, strOut.length())<0)
+    {
+        IVT_ERR("create_http_client err!\n");
+        goto ERR_END;
+    }
+
+    if(getResponse(fd, JsonData, 512)<0)
+    {
+        IVT_ERR("getResponse err!\n");
+        goto ERR_END;
+    }
+    IVT_DEBUG("JsonData %s\n", JsonData);
+
+    paraOut->rpcType = RPC_RESP;
+    paraOut->subType = IVC_SETRTMPPUBLISHCONFIG;
+    paraOut->seq = para->seq;
+    close_http_client(fd);
+    return 0;
+
+    ERR_END:
+    paraOut->rpcType = RPC_ERR;
+    paraOut->subType = IVC_SETRTMPPUBLISHCONFIG;
     paraOut->seq = para->seq;
     err->errCode = 1;
     strcpy(err->msg, "error");
@@ -1908,7 +2063,8 @@ ERR_END:
 ivcCallBack ivcReqCb[IVC_ELSE_METHOD] = {ivc_rtmpPublishCb, ivc_rtmpStopPublishCb, ivc_rebootChannelCb,
 	                                        ivc_getPtzPresetListCb, ivc_getPtzPresetTourListCb,
 	                                                ivc_startCRCb, ivc_stopCRCb, ivc_alarmMDCfgCb,
-	                                                ivc_alarmRectDCfgCb, ivc_getNetconfigCb};
+	                                                ivc_alarmRectDCfgCb, ivc_getNetconfigCb,
+                                         ivc_getRtmpPublishConfigCb, ivc_setRtmpPublishConfigCb};
 ivtCallBack ivtEventCb[IVT_ELSE_EVENT] = {NULL};
 ivtCallBack ivcEventCb[IVC_ELSE_EVENT] = {ivc_ctrPtzCb, ivc_gotoPtzPresetCb, ivc_ctrlPtzPresetTourCb,
 	                                              ivc_ctrlPtzPatrolCb, ivc_syncTimeCb};

@@ -107,6 +107,26 @@ typedef struct
 
 typedef struct
 {
+	int channel;
+	bool enable;
+	int quality;
+	char url[IVT_URL_SIZE];
+}ivtRPCRtmpPulibshConfig;
+
+typedef struct
+{
+	int config_count;
+	ivtRPCRtmpPulibshConfig config_list[IVT_RTMP_PUBLISH_CONFIG_COUNT];
+}ivtRPCSetRtmpPulibshConfig;
+
+typedef struct
+{
+	int config_count;
+	ivtRPCRtmpPulibshConfig config_list[IVT_RTMP_PUBLISH_CONFIG_COUNT];
+}ivtRPCGetRtmpPulibshConfigR;
+
+typedef struct
+{
 	char name[IVT_ETH_NAME_SIZE];
 	char ip[IVT_IPV4_SIZE];
 	char gateway[IVT_IPV4_SIZE];
@@ -114,7 +134,7 @@ typedef struct
 	char dns1[IVT_IPV4_SIZE];
 	char dns2[IVT_IPV4_SIZE];
     char mac[IVT_MAC_SIZE];
-	int dhcp;
+	bool dhcp;
 }ivtNetConfig;
 
 typedef struct

@@ -23,6 +23,7 @@ class ivtRPCJson
         int readIVCReqParamsStartCR(ivtRPCStartCR *cr, Json::Value *paraObj);
 		int readIVCReqParamsAlarmMDC(ivtRPCMDC *mdc, Json::Value *paraObj);		
 		int readIVCReqParamsAlarmRectDC(ivtRPCRectDC *rectDC, Json::Value *paraObj);
+	    int readIVCReqParamsSetRtmpPublishConfig(ivtRPCSetRtmpPulibshConfig *config, Json::Value *paraObj);
 		
 		int writeIVTReqParams(ivtRPCStruct *pStructData, Json::Value *paraObj);//ivt req send
 		int writeIVTResParams(ivtRPCStruct *pStructData, Json::Value *paraObj);//ivt res send

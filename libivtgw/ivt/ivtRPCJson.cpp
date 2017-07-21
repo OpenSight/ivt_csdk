@@ -19,7 +19,7 @@ const char * ivtRPCJson::m_ivc_methodType[ ] = {"RTMPPublish", "RTMPStopPublish"
 	                                            "GetPTZPresetList", "GetPTZPresetTourList",
 	                                            "StartCloudRecord", "StopCloudRecord",
 	                                            "AlarmMoveDetectConfig", "AlarmRectIntrusionDetectConfig",
-												"GetNetConfig"};
+												"GetNetConfig", "GetRTMPPublishConfig", "SetRTMPPublishConfig"};
 
 const char * ivtRPCJson::m_ivt_eventType[ ]  = {"UNKNOWN_EVENT"};
 const char * ivtRPCJson::m_ivc_eventType[ ] = {"CtrlPTZ", "GotoPTZPreset", "CtrlPTZPresetTour",
@@ -633,6 +633,81 @@ int ivtRPCJson::readIVCReqParamsAlarmRectDC(ivtRPCRectDC *rectDC, Json::Value *p
 	return 0;
 }
 
+int ivtRPCJson::readIVCReqParamsSetRtmpPublishConfig(ivtRPCSetRtmpPulibshConfig* config, Json::Value *paraObj)
+{
+	int i, j;
+	Json::Value item;
+	string strTemp;
+
+	if (!paraObj->isArray())
+	{
+		IVT_ERR("Not of array type.\n");
+		return -1;
+	}
+	if (paraObj->size() == 0)
+	{
+		IVT_ERR("No config given.\n");
+		config->config_count = 0;
+		return -1;
+	}
+
+	config->config_count = paraObj->size();
+	if (config->config_count > IVT_RTMP_PUBLISH_CONFIG_COUNT)
+		config->config_count = IVT_RTMP_PUBLISH_CONFIG_COUNT;
+
+	for (i=0; i<config->config_count; i++)
+	{
+		item = (*paraObj)[i];
+
+        if (!item.isObject())
+        {
+            IVT_ERR("Not object, but %d\n", item.type());
+            //IVT_DEBUG("array size %s\n", item.size());
+            return -1;
+        }
+
+		if (!item.isMember("enable"))
+		{
+			IVT_ERR("enable is not given.\n");
+			return -1;
+		}
+		config->config_list[i].enable = item["enable"].asBool();
+
+		if (false == item.isMember("channel"))
+		{
+			IVT_ERR("channel is not given. \n");
+			return -1;
+		}
+		config->config_list[i].channel = item["channel"].asInt();
+
+		if (false == item.isMember("quality"))
+		{
+			IVT_ERR("quality is not given. \n");
+			return -1;
+		}
+		strTemp = item["quality"].asString();
+		config->config_list[i].quality = IVT_XHD;
+		for(j=0; j<IVT_XHD; j++)
+		{
+			if(strTemp==m_ivt_videoDType[j])
+			{
+				config->config_list[i].quality = j;
+				break;
+			}
+		}
+
+		if (false == item.isMember("url"))
+		{
+			IVT_ERR("url is not given. \n");
+			return -1;
+		}
+		strncpy(config->config_list[i].url, item["url"].asString().c_str(), IVT_URL_SIZE);
+		config->config_list[i].url[IVT_URL_SIZE-1] = 0;
+	}
+
+	return 0;
+}
+
 int ivtRPCJson::readIVCReqParams(ivtRPCStruct *pStructData, Json::Value *paraObj)
 {
     bool bRet = false;
@@ -840,6 +915,18 @@ int ivtRPCJson::readIVCReqParams(ivtRPCStruct *pStructData, Json::Value *paraObj
 			generalParams->channel = (*paraObj)["channel"].asInt();
 		}
 		break;
+        case IVC_GETRTMPPUBLISHCONFIG:
+        break;
+        case IVC_SETRTMPPUBLISHCONFIG:
+        {
+			ivtRPCSetRtmpPulibshConfig *config;
+			config = (ivtRPCSetRtmpPulibshConfig *)(pStructData->params);
+			if(readIVCReqParamsSetRtmpPublishConfig(config, paraObj)<0)
+			{
+				return -1;
+			}
+		}
+        break;
 		default:
 			return -1;
 		break;
@@ -1068,6 +1155,7 @@ int ivtRPCJson::writeIVTResParams(ivtRPCStruct *pStructData, Json::Value *paraOb
 		case IVC_REBOOTCHANNEL:
 		case IVC_STARTCLOUDRECORD:
 		case IVC_STOPCLOUDRECORD:
+		case IVC_SETRTMPPUBLISHCONFIG:
 		case IVC_ALARMMOVEDETECTCONFIG:
 			return -1;
 		break;
@@ -1120,8 +1208,8 @@ int ivtRPCJson::writeIVTResParams(ivtRPCStruct *pStructData, Json::Value *paraOb
                     item["dns2"] = config->net_config_list[i].dns2;
                     item["gateway"] = config->net_config_list[i].gateway;
                     item["netmask"] = config->net_config_list[i].netmask;
-                    item["dhcp"] = config->net_config_list[i].dhcp;
                     item["mac"] = config->net_config_list[i].mac;
+                    item["dhcp"] = config->net_config_list[i].dhcp;
                     (*paraObj).append(item);
                 }
             }
@@ -1129,6 +1217,29 @@ int ivtRPCJson::writeIVTResParams(ivtRPCStruct *pStructData, Json::Value *paraOb
 			{
 				(*paraObj).resize(0);
 			}
+        }
+        break;
+        case IVC_GETRTMPPUBLISHCONFIG:
+        {
+            ivtRPCGetRtmpPulibshConfigR* config = (ivtRPCGetRtmpPulibshConfigR*)(pStructData->params);
+            if(config->config_count)
+            {
+                for (i=0; i < config->config_count; i++)
+                {
+                    item["enable"] = config->config_list[i].enable;
+                    item["channel"] = config->config_list[i].channel;
+                    item["url"] = config->config_list[i].url;
+					if (config->config_list[i].quality < IVT_XHD)
+						item["quality"] = m_ivt_videoDType[config->config_list[i].quality];
+					else
+						item["quality"] = m_ivt_videoDType[1];
+                    (*paraObj).append(item);
+                }
+            }
+            else
+            {
+                (*paraObj).resize(0);
+            }
         }
         break;
 		default:
