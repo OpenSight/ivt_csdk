@@ -73,9 +73,9 @@ int main(int argc, char **argv)
 	char ivtMode[FM_STRING_LEN];
 
 #if(DEBUG_IVT)
-	char wsUrl[513]= "ws://116.62.180.77:25000/ivc?login_code=debugger&login_passwd=debugger"\
+	//char wsUrl[513]= "ws://116.62.180.77:25000/ivc?login_code=debugger&login_passwd=debugger"\
 		"&project=demo&hardware_model=IPC-2829B&firmware_model=2.13.11.2.R5302.";
-    //char wsUrl[513]= "ws://116.62.180.77:9999/ivc?login_code=debugger&login_passwd=debugger"\
+    char wsUrl[513]= "ws://116.62.180.77:9999/ivc?login_code=debugger&login_passwd=debugger"\
 		"&project=demo&hardware_model=IPC-2829B&firmware_model=2.13.11.2.R5302.";
 #else
     char wsUrl[513];

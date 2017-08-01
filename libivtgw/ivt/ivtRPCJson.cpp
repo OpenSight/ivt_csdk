@@ -877,6 +877,7 @@ int ivtRPCJson::readIVCReqParams(ivtRPCStruct *pStructData, Json::Value *paraObj
 				return -1;
 			}
 		}
+		break;
 		case IVC_STOPCLOUDRECORD:
 		{
 			ivtRPCStopCR *cr;
