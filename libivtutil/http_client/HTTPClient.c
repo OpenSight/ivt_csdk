@@ -1892,7 +1892,7 @@ UINT32 HTTPIntrnConnectionOpen (P_HTTP_SESSION pHTTPSession)
             // Set TLS Nego flag to flase
             pHTTPSession->HttpConnection.TlsNego = FALSE;
             // Set the Write fd_sets for a socket connection event
-            FD_SET(pHTTPSession->HttpConnection.HttpSocket, &pHTTPSession->HttpConnection.FDWrite);
+            //FD_SET(pHTTPSession->HttpConnection.HttpSocket, &pHTTPSession->HttpConnection.FDWrite);
             // Set the state flag
             pHTTPSession->HttpState  = pHTTPSession->HttpState | HTTP_CLIENT_STATE_HOST_CONNECTED;
             // We have connected so set the return value to success
@@ -1980,8 +1980,12 @@ UINT32 HTTPIntrnSend (P_HTTP_SESSION pHTTPSession,
             
             // Reset socket events , only Error, since we don't want to get
             // a repeated Write events (socket is connected) 
-            
+            FD_ZERO(&pConnection->FDError);
+            FD_ZERO(&pConnection->FDWrite);
             FD_SET(pConnection->HttpSocket, &pConnection->FDError);
+            FD_SET(pConnection->HttpSocket, &pConnection->FDWrite);            
+            Timeval.tv_sec = 1;
+            Timeval.tv_usec = 0;
             
             // See if we got any events on the socket
             nSocketEvents = select((pConnection->HttpSocket + 1), 0, 
@@ -2003,6 +2007,7 @@ UINT32 HTTPIntrnSend (P_HTTP_SESSION pHTTPSession,
             // Socket is writable (we are connected) so send the data 
             if(FD_ISSET(pConnection->HttpSocket ,&pConnection->FDWrite))
             {
+                FD_CLR((UINT32)pConnection->HttpSocket,&pConnection->FDWrite);
                 
                 // Send the data 
                 if((pHTTPSession->HttpFlags & HTTP_CLIENT_FLAG_SECURE) == HTTP_CLIENT_FLAG_SECURE)
@@ -2029,6 +2034,7 @@ UINT32 HTTPIntrnSend (P_HTTP_SESSION pHTTPSession,
                 {
                     nRetCode = SocketGetErr(pHTTPSession->HttpConnection.HttpSocket);
                     nRetCode = HTTP_CLIENT_ERROR_SOCKET_SEND;
+                    *(nLength) = 0;
                     break;
                 }
                 // The data was sent to the remote server
@@ -2101,8 +2107,12 @@ UINT32 HTTPIntrnRecv (P_HTTP_SESSION pHTTPSession,
             
             
             // Reset socket events
+            FD_ZERO(&pConnection->FDRead);
+            FD_ZERO(&pConnection->FDError);
             FD_SET(pConnection->HttpSocket, &pConnection->FDRead);  
             FD_SET(pConnection->HttpSocket, &pConnection->FDError); 
+            Timeval.tv_sec = 0;
+            Timeval.tv_usec = 50000;
             
             // See if we got any events on the socket
             nSocketEvents = select(pConnection->HttpSocket + 1, &pConnection->FDRead, 
