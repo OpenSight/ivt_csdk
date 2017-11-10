@@ -78,6 +78,7 @@ code            备注
 ==========     ============
 1               内部系统错误
 11              码流过大
+101             不支持的RPC方法
 ==========     ============
 
 事件通知
@@ -108,13 +109,24 @@ code            备注
 
 2. IVC测在接收到请求后，验证IVT身份，若通过，则与IVT建立websocket连接。
 
-3. IVT定期向IVC发送keepalive，在keepalive中携带IVT的状态，以及其下摄像头的状态信息。
+3. IVT定期向IVC发送Keepalive，在Keepalive中携带IVT的状态，以及其下摄像头的状态信息。
 
 4. 根据业务安排，IVT与IVC可以进行各种RPC与event的交换。
 
 IVC的websocket URL格式如下: ::
 
   ws://<IVC host:port>/ivc?login_code=<IVT登录名>&login_passwd=<IVT登录密码>&hardware_model=<IVT的硬件型号>&firmware_model=<IVT的固件版本号>
+
+IVT需支持的最小协议集合
+^^^^^^^^^^^^^^^^^^^^^^^^
+
+以下RPC方法是每个IVT都必须支持的，余下的RPC或event均为可选支持。
+
+1. 支持向IVC发送Keepalive
+
+2. 支持接受RTMPPublish请求
+
+3. 支持接受RTMPStopPublish请求
 
 IVC支持的RPC方法
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -135,6 +147,7 @@ IVT利用该方法定期向IVC报告工作状态，IVC以此作为IVT仍然在�
       {
         "channel": <必填，整数>,
         "state": <必填，整数；该channel的状态，0：离线，1：在线，2：直播中>,
+        "stream_id": <可选，字符串；当前channel正在进行的推流stream_id，即RTMPPublish方法中给定的stream_id，空字符串或该域不存在表示该channel没有正在publish的RTMP流>
         "record_session": <可选，字符串；当前channel正在进行的录像session的ID，录像session ID为StartCloudRecord请求中的session_id域；空字符串或该域不存在表示没有正在进行的录像session>
         "alarm": <可选，整数；当前报警状态flag，每一位（从0开始计数）对应一种报警类型，当相应位为1时，标示该类型的报警被触发；第2位，外部报警；第3位，移动侦测；第4位，拌网；当该域不存在时表示当前没有报警>
       }
@@ -210,7 +223,9 @@ IVT支持的RPC方法
 RTMPPublish
 ++++++++++++
 
-IVC可以通过该方法请求IVT publish一条RTMP流到指定URL。
+IVC可以通过该方法请求IVT publish一条RTMP流到指定URL；
+一旦接受该指令，则需在发送的Keepalive中将channel的state改为直播中，同时将channel的stream_id置为给定的stream_id；
+推流过程中如出现与流服断开的情况，请尝试重新推流，同时保持keepalive中的推流状态以及stream_id
 
 参数： ::
 
