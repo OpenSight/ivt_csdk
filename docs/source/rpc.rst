@@ -4,7 +4,7 @@ IVR RPC 协议
 名词解释
 ^^^^^^^^^^^^^
 
-- IVR：internet video recorder，一种基于物联网云计算技术的网络视频录象机；
+- IVR：internet video recorder，一种基于物联网云计算技术的网络视频录像机；
   与传统NVR，DVR类似，IVR可以接入和管理各种摄像头，支持录像，支持直播点播视频等功能，
   但是与传统NVR，DVR的不同在于用户可以在互联网上观看直播点播，
   并且因为应用了云计算技术，IVR拥有近于无限的接入能力以及海量的并发直播点播请求；IVR主要由IVC与IVT两部分组成。
@@ -25,12 +25,65 @@ IVR RPC 协议
 
 IVR RPC底层基于TCP/IP的websocket，应用层为基于JSON的自定义协议。
 
+websocket URL：::
+
+  ws://<IVC host:port>/ivc?login_code=<IVT登录名>&login_passwd=<IVT登录密码>&hardware_model=<IVT的硬件型号>&firmware_model=<IVT的固件版本号>
+
+IVT通过上述URL主动连接斌登录IVC平台，其中“IVT登录名”以及“IVT登录密码”是平台指定的，因此IVT需要提供方法配置这两个参数，以便在连接IVC时使用，URL中给定的登录名与密码与平台配置不符，登录会失败。
+“IVT的硬件型号”与“IVT的固件版本号”由IVT厂家自定义，主要用于后期问题追踪，以及用于支持通过平台进行远程固件升级。
+
 应用层协议的基本通信模式包括RPC与event（事件通知）两种：
 
 1. RPC为一应一答模式；通信中的两个端点均可以发起RPC请求；在单一方向上，请求接收/回应方，必须根据请求到达的顺序来处理并回应请求；
 两个方向上RPC请求有个各自的序列号，且独立计数；任一方向上的RPC请求与响应，不受另一方向上是否有RPC请求正在进行的影响。
 
 2. 事件通知是没有应答的；通信中的两个端点均可以给对方发送事件通知。
+
+流程
+++++++++
+
+1. IVT向IVC发起websocket连接，并携带上login_code，login_password等信息。
+
+2. IVC侧在接收到请求后，验证IVT身份，若通过，则与IVT建立websocket连接。
+
+3. IVT每10秒向IVC发送一个keepalive请求，在keepalive中携带IVT的状态，以及其下摄像头的状态信息。
+
+4. 根据业务安排，IVT与IVC可以进行各种RPC与event的交换。
+
+异常处理
+++++++++
+
+当通讯的一端发现如下异常时，需主动断开websocket连接：
+
+1. 收到的RPC response的seq与期待的seq（序列号）不一致时
+
+2. RPC相应超时，当RPC发起方发现对端在20秒后仍然没有响应请求
+
+3. 数据包格式不正确
+
+IVT接入指引
+^^^^^^^^^^^^^
+
+对于摄像机、NVR等IVT生产厂家，如希望自己的设备能够接入IVC平台，通过平台获得远程控制与播放等功能，则必须实现本文档描述的协议。
+IVT设备并不需要支持本文档中罗列的所有RPC/event方法，IVT设备厂家可以根据自己设备的能力以及应用的业务场景选择实现部分功能。
+
+最小实现
++++++++++
+
+1. IVT需要支持以websocket方式连接并登录平台，请参考:ref:`websocket登录URL <协议特性>`.
+
+2. IVT能够在与平台链接断开后定期主动尝试重连
+
+3. IVT需要支持每10秒向平台发送:ref:`keepalive <Keepalive>`.
+
+4. IVT需要接受平台下发的:ref:`启动推流 <RTMPPublish>`请求
+
+5. IVT需要接受平台下发的:ref:`结束推流 <RTMPStopPublish>`请求
+
+6. IVT需要能够正确处理:ref:`异常情况 <异常处理>`
+
+7. IVT需要提供配置登录名与登录密码的方法（如通过摄像机web管理端）
+
 
 应用层协议数据包格式
 ^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -91,42 +144,6 @@ code            备注
     "params": <JSON对象，可选，参数；当没有参数时，该域不存在>
   }
 
-异常处理
-^^^^^^^^^^^^
-
-当通讯的一端发现如下异常时，需主动断开websocket连接：
-
-1. 收到的RPC response的seq与期待的seq（序列号）不一致时
-
-2. RPC相应超时，当RPC发起方发现对端在20秒后仍然没有响应请求
-
-3. 数据包格式不正确
-
-协议流程
-^^^^^^^^^^^
-
-1. IVT向IVC发起websocket连接，并携带上login_code，login_password等信息。
-
-2. IVC测在接收到请求后，验证IVT身份，若通过，则与IVT建立websocket连接。
-
-3. IVT定期向IVC发送Keepalive，在Keepalive中携带IVT的状态，以及其下摄像头的状态信息。
-
-4. 根据业务安排，IVT与IVC可以进行各种RPC与event的交换。
-
-IVC的websocket URL格式如下: ::
-
-  ws://<IVC host:port>/ivc?login_code=<IVT登录名>&login_passwd=<IVT登录密码>&hardware_model=<IVT的硬件型号>&firmware_model=<IVT的固件版本号>
-
-IVT需支持的最小协议集合
-^^^^^^^^^^^^^^^^^^^^^^^^
-
-以下RPC方法是每个IVT都必须支持的，余下的RPC或event均为可选支持。
-
-1. 支持向IVC发送Keepalive
-
-2. 支持接受RTMPPublish请求
-
-3. 支持接受RTMPStopPublish请求
 
 IVC支持的RPC方法
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
