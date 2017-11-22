@@ -70,17 +70,17 @@ IVT设备并不需要支持本文档中罗列的所有RPC/event方法，IVT设�
 最小实现
 +++++++++
 
-1. IVT需要支持以websocket方式连接并登录平台，请参考:ref:`websocket登录URL <协议特性>`.
+1. IVT需要支持以websocket方式连接并登录平台，请参考 :ref:`websocket登录URL <协议特性>`.
 
 2. IVT能够在与平台链接断开后定期主动尝试重连
 
-3. IVT需要支持每10秒向平台发送:ref:`keepalive <Keepalive>`.
+3. IVT需要支持每10秒向平台发送 :ref:`keepalive <Keepalive>`.
 
-4. IVT需要接受平台下发的:ref:`启动推流 <RTMPPublish>`请求
+4. IVT需要接受平台下发的 :ref:`启动推流 <RTMPPublish>` 请求
 
-5. IVT需要接受平台下发的:ref:`结束推流 <RTMPStopPublish>`请求
+5. IVT需要接受平台下发的 :ref:`结束推流 <RTMPStopPublish>` 请求
 
-6. IVT需要能够正确处理:ref:`异常情况 <异常处理>`
+6. IVT需要能够正确处理 :ref:`异常情况 <异常处理>`
 
 7. IVT需要提供配置登录名与登录密码的方法（如通过摄像机web管理端）
 
