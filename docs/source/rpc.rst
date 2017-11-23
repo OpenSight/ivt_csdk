@@ -266,7 +266,6 @@ RTMPPublish
 
 IVC可以通过该方法请求IVT publish一条RTMP流到指定URL；
 一旦接受该指令，则需在发送的Keepalive中将channel的state改为直播中，同时将channel的stream_id置为给定的stream_id；
-推流过程中如出现与流服断开的情况，请尝试重新推流，同时保持keepalive中的推流状态以及stream_id
 
 参数： ::
 
