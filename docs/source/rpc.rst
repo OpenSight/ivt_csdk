@@ -155,6 +155,7 @@ code            备注
 ==========     ============
 1               内部系统错误
 11              码流过大
+12              重复请求推流
 101             不支持的RPC方法
 ==========     ============
 
@@ -265,6 +266,8 @@ RTMPPublish
 ++++++++++++
 
 IVC可以通过该方法请求IVT publish一条RTMP流到指定URL；
+参数中的“quality”为流清晰度，分4档，一般摄像机只会有主副两种码流，这种情况下，推荐将hd和fhd对应到主码流，ld和sd对应到副码流；
+同一个摄像机同一时间只应该publish一条流，推流过程中如果再次收到平台的推流请求，应该回绝，对应error code为12；
 一旦接受该指令，则需在发送的Keepalive中将channel的state改为直播中，同时将channel的stream_id置为给定的stream_id；
 
 参数： ::
@@ -284,6 +287,7 @@ IVC可以通过该方法请求IVT publish一条RTMP流到指定URL；
 可能的error code:
 
 - 11: 码流过大
+- 12: 重复推流请求
 
 RTMPStopPublish
 +++++++++++++++++
