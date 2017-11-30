@@ -1,10 +1,13 @@
-IVR RPC 协议
-==================
+趣录播云平台设备接入协议
+======================
+
+本文档描述了 `趣录播 <http://www.opensight.cn/>`_ 云平台与本地视音频设备的通信协议，
+通过本协议，设备的使用者可以获得设备远端控制，直播远端观看，云端录像等能力。
 
 名词解释
 ^^^^^^^^^^^^^
 
-- IVR：internet video recorder，一种基于物联网云计算技术的网络视频录象机；
+- IVR：internet video recorder，一种基于物联网云计算技术的网络视频录像机；
   与传统NVR，DVR类似，IVR可以接入和管理各种摄像头，支持录像，支持直播点播视频等功能，
   但是与传统NVR，DVR的不同在于用户可以在互联网上观看直播点播，
   并且因为应用了云计算技术，IVR拥有近于无限的接入能力以及海量的并发直播点播请求；IVR主要由IVC与IVT两部分组成。
@@ -25,12 +28,86 @@ IVR RPC 协议
 
 IVR RPC底层基于TCP/IP的websocket，应用层为基于JSON的自定义协议。
 
+websocket URL：::
+
+  ws://<IVC host:port>/ivc?login_code=<IVT登录名>&login_passwd=<IVT登录密码>&hardware_model=<IVT的硬件型号>&firmware_model=<IVT的固件版本号>
+
+IVT通过上述URL主动连接并登录IVC平台，其中“IVT登录名”以及“IVT登录密码”是平台指定的，因此IVT需要提供方法配置这两个参数，以便在连接IVC时使用；
+如果URL中给定的登录名与密码与平台配置不符，登录会失败。
+“IVT的硬件型号”与“IVT的固件版本号”由IVT厂家自定义，主要用于后期问题追踪，以及用于支持通过平台进行远程固件升级。
+
 应用层协议的基本通信模式包括RPC与event（事件通知）两种：
 
 1. RPC为一应一答模式；通信中的两个端点均可以发起RPC请求；在单一方向上，请求接收/回应方，必须根据请求到达的顺序来处理并回应请求；
 两个方向上RPC请求有个各自的序列号，且独立计数；任一方向上的RPC请求与响应，不受另一方向上是否有RPC请求正在进行的影响。
 
 2. 事件通知是没有应答的；通信中的两个端点均可以给对方发送事件通知。
+
+流程
+++++++++
+
+1. IVT向IVC发起websocket连接，并携带上login_code，login_password等信息。
+
+2. IVC侧在接收到请求后，验证IVT身份，若通过，则与IVT建立websocket连接。
+
+3. IVT每10秒向IVC发送一个keepalive请求，在keepalive中携带IVT的状态，以及其下摄像头的状态信息。
+
+4. 根据业务安排，IVT与IVC可以进行各种RPC与event的交换。
+
+异常处理
+++++++++
+
+当通讯的一端发现如下异常时，需主动断开websocket连接：
+
+1. 收到的RPC response的seq与期待的seq（序列号）不一致时
+
+2. RPC相应超时，当RPC发起方发现对端在20秒后仍然没有响应请求
+
+3. 数据包格式不正确
+
+IVT开发指引
+^^^^^^^^^^^^^
+
+对于摄像机、NVR等IVT生产厂家，如希望自己的设备能够接入IVC平台，通过平台获得远程控制与播放等功能，则需要在设备中实现本文档描述的协议。
+IVT设备并不需要支持本文档中罗列的所有RPC/event方法，IVT设备厂家可以根据自己设备的能力以及应用的业务场景选择实现部分功能。
+
+因为本协议使用的协议是基于websocket以及JSON这两个非常通用的标准，因此只要根据自己设备的情况，选用合适的开源库便可非常快速的实现通信。
+
+最小实现
++++++++++
+
+1. IVT需要支持以websocket方式连接并登录平台，请参考 :ref:`websocket登录URL <协议特性>`.
+
+2. IVT能够在与平台链接断开后定期主动尝试重连
+
+3. IVT需要支持每10秒向平台发送 :ref:`keepalive <Keepalive>`.
+
+4. IVT需要接受平台下发的 :ref:`启动推流 <RTMPPublish>` 请求
+
+5. IVT需要接受平台下发的 :ref:`结束推流 <RTMPStopPublish>` 请求
+
+6. IVT需要能够正确处理 :ref:`异常情况 <异常处理>`
+
+7. IVT需要提供配置登录名与登录密码的方法（如通过摄像机web管理端）
+
+推荐实现
+++++++++
+
+1. 如希望用户能够通过云平台获取摄像机的本地地址，以便用户本地登录设备，可考虑实现 :ref:`获取网络配置 <GetNetConfig>` 请求
+
+2. 如果摄像机支持云台或缩放功能，推荐实现 :ref:`云台控制 <CtrlPTZ>`
+
+3. 如果希望用户能够在平台看到摄像机的预览图，推荐定期（如每15分钟）向平台请求 :ref:`预览图上传地址 <preview_server>` ，并向该地址上传预览图片
+
+4. 如果希望用户能够远程重启设备，推荐实现 :ref:`重启设备 <RebootChannel>`
+
+调试方法
+++++++++
+
+为方便IVT开发人员调试协议，我们实现了一个云端的模拟平台，支持IVT登录，并能与IVT进行简单的通信，开发人员可以在浏览器中监控
+模拟平台与IVT之间的所有应用层协议数据的交换，同时支持通过浏览器向IVT下发自定义的协议数据包。
+
+如需要使用该工具，可与我们取得联系。
 
 应用层协议数据包格式
 ^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -78,6 +155,8 @@ code            备注
 ==========     ============
 1               内部系统错误
 11              码流过大
+12              重复请求推流
+101             不支持的RPC方法
 ==========     ============
 
 事件通知
@@ -90,35 +169,6 @@ code            备注
     "params": <JSON对象，可选，参数；当没有参数时，该域不存在>
   }
 
-异常处理
-^^^^^^^^^^^^
-
-当通讯的一端发现如下异常时，需主动断开websocket连接：
-
-1. RPC的request与response的seq（序列号不一致）
-
-2. 在没有响应上一个RPC request的情况下收到其他RPC request
-
-3. RPC相应超时，当RPC发起方发现对端在20秒后仍然没有响应请求
-
-4. 调用的RPC方法不存在
-
-5. 数据包格式不正确
-
-协议流程
-^^^^^^^^^^^
-
-1. IVT向IVC发起websocket连接，并携带上login_code，login_password等信息。
-
-2. IVC测在接收到请求后，验证IVT身份，若通过，则与IVT建立websocket连接。
-
-3. IVT定期向IVC发送keepalive，在keepalive中携带IVT的状态，以及其下摄像头的状态信息。
-
-4. 根据业务安排，IVT与IVC可以进行各种RPC与event的交换。
-
-IVC的websocket URL格式如下: ::
-
-  ws://<IVC host:port>/ivc?login_code=<IVT登录名>&login_passwd=<IVT登录密码>&hardware_model=<IVT的硬件型号>&firmware_model=<IVT的固件版本号>
 
 IVC支持的RPC方法
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -139,6 +189,7 @@ IVT利用该方法定期向IVC报告工作状态，IVC以此作为IVT仍然在�
       {
         "channel": <必填，整数>,
         "state": <必填，整数；该channel的状态，0：离线，1：在线，2：直播中>,
+        "stream_id": <可选，字符串；当前channel正在进行的推流stream_id，即RTMPPublish方法中给定的stream_id，空字符串或该域不存在表示该channel没有正在publish的RTMP流>
         "record_session": <可选，字符串；当前channel正在进行的录像session的ID，录像session ID为StartCloudRecord请求中的session_id域；空字符串或该域不存在表示没有正在进行的录像session>
         "alarm": <可选，整数；当前报警状态flag，每一位（从0开始计数）对应一种报警类型，当相应位为1时，标示该类型的报警被触发；第2位，外部报警；第3位，移动侦测；第4位，拌网；当该域不存在时表示当前没有报警>
       }
@@ -214,7 +265,10 @@ IVT支持的RPC方法
 RTMPPublish
 ++++++++++++
 
-IVC可以通过该方法请求IVT publish一条RTMP流到指定URL。
+IVC可以通过该方法请求IVT publish一条RTMP流到指定URL；
+参数中的“quality”为流清晰度，分4档，一般摄像机只会有主副两种码流，这种情况下，推荐将hd和fhd对应到主码流，ld和sd对应到副码流；
+同一个摄像机同一时间只应该publish一条流，推流过程中如果再次收到平台的推流请求，应该回绝，对应error code为12；
+一旦接受该指令，则需在发送的Keepalive中将channel的state改为直播中，同时将channel的stream_id置为给定的stream_id；
 
 参数： ::
 
@@ -233,6 +287,7 @@ IVC可以通过该方法请求IVT publish一条RTMP流到指定URL。
 可能的error code:
 
 - 11: 码流过大
+- 12: 重复推流请求
 
 RTMPStopPublish
 +++++++++++++++++
