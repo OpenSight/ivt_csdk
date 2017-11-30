@@ -691,7 +691,9 @@ int ServeInvoke(STREAMING_SERVER *server, RTMP * r,
 	}
 	else if(AVMATCH(&method, &av_getStreamLength))
 	{
-	  	SendResultNumber(r, txn, 10.0);
+        //jiankai.wang@opensight.cn(2017/11/23):
+        //according to nginx_rtmp/srs implementation, just ignore getStreamLength packet
+	  	//SendResultNumber(r, txn, 10.0);
 	}
 	else if(AVMATCH(&method, &av_NetStream_Authenticate_UsherToken))
 	{
@@ -762,7 +764,7 @@ int ServeInvoke(STREAMING_SERVER *server, RTMP * r,
 					return 1;
 				}
 
-				//!·ÖÎöÍ¨µÀ£¬ºÍÂëÁ÷ÀàĞÍ
+				//!Â·Ã–ÃÃ¶ÃÂ¨ÂµÃ€Â£Â¬ÂºÃÃ‚Ã«ÃÃ·Ã€Ã ÃÃ
 				///rtmp://172.16.2.14:1935/live/new/_channel_0_stream_0_.flv/
 				char* p1 = strstr(pval, "_channel_");
 				if(p1 != NULL)
@@ -1148,7 +1150,7 @@ TFTYPE doServe(void *arg)
 				}
 				else if(1==server->playType)
 				{
-					//!liveÖ±²¥
+					//!liveÃ–Â±Â²Â¥
 					mutex_lock(server_list_mutex);
 					list_add(&server->server_list, GetServerList());
 					mutex_unlock(server_list_mutex);
