@@ -10,6 +10,7 @@
 #define AV_PACKET_SIZE (1024*(1024+512))
 #define PTS_DELAY_MS_200 200
 #define PTS_DELAY_MS_100 100
+#define PTS_DELAY_MS_500 500
 
 extern unsigned int adts_sample_rates[];
 
@@ -137,10 +138,10 @@ int publishLive_sendAV(rtmpPublisher *rPublish, const unsigned char* videoData, 
 	{
 		if(rPublish->aTimeS > rPublish->vTimeS+PTS_DELAY_MS_200)
 			rPublish->vTimeS = rPublish->aTimeS;
+//		else if(rPublish->aTimeS+PTS_DELAY_MS_500 < rPublish->vTimeS)
+//			frmRate *= 2;
 		else if(rPublish->aTimeS+PTS_DELAY_MS_200 < rPublish->vTimeS)
-			frmRate<<=3;
-		else if(rPublish->aTimeS+PTS_DELAY_MS_100 < rPublish->vTimeS)
-			frmRate<<=2;
+			frmRate *= 2;
 	}
 
     if(1==frmType) //idr avc frame
