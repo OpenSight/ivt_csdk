@@ -388,7 +388,7 @@ static int http_put(HTTP_SESSION_HANDLE session,
                 
                 //if retry for timeout, use a shorter upload time to avoid queue congest
                 if(ret == HTTP_CLIENT_ERROR_SOCKET_TIME_OUT){
-                    retry_upload_time = (int64_t)(segment->duration * 0.5 * 1000);
+                    int64_t retry_upload_time = (int64_t)(segment->duration * 0.5 * 1000);
                     if(upload_time > retry_upload_time){
                         upload_time = retry_upload_time;
                     }
